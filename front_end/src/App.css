@@ -1,0 +1,9 @@
+.App {
+    background-color: #1F2021;
+    min-height:calc(100vh - 60px);
+    padding-top:60px;
+    position: relative;
+  
+    display: flex;
+    justify-content: center;
+  }

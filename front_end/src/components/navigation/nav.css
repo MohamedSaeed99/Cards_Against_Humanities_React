@@ -1,0 +1,27 @@
+body{
+    width:100%;
+    padding: 0;
+    margin: 0;
+}
+
+.navigationBar {
+    width: 100%;
+    height: 60px;
+    background-color: #eaf0f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.options{
+    padding: 0 15px 0 5px
+}
+
+.searchBar{
+    padding: 0 5px 0 15px
+}
+
+#outlined-search{
+    width: 30vw;
+    height: 5px;
+}
