@@ -1,9 +1,8 @@
 const express = require("express");
-const http = require("http");
-const socketIo = require("socket.io");
-
-const index = require("./routes/index");
-
 const app = express();
+const connection = require('./db/index');
+const indexRouter = require("./routes/index");
 
-app.use(index);
+app.use("/", indexRouter);
+
+module.exports = app;
