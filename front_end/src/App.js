@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Route } from 'react-router-dom';
-import './App.css'
-import Home from './components/home'
-import Nav from './components/navigation/nav'
+import { Route } from 'react-router-dom';
+import './App.css';
+import Home from './components/home';
+import Nav from './components/navigation/nav';
+import Register from './components/registeration/register';
 
 
 class App extends Component {
@@ -18,10 +19,8 @@ class App extends Component {
     return (
       <div style={{height: 0, margin:0, padding:0}}>
         <Nav></Nav>
-
-        <BrowserRouter>
-          <Route exact path="/" render={() => <Home loggedIn={this.state.loggedIn} />} />
-        </BrowserRouter>
+        <Route exact path="/" render={() => <Home loggedIn={this.state.loggedIn} />} />
+        <Route exact path="/register" render={() => <Register />} />
       </div>
     );
   }

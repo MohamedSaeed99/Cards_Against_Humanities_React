@@ -13,8 +13,8 @@ body{
     align-items: center;
 }
 
-.options{
-    padding: 0 15px 0 5px
+.option{
+    margin-right: 10px !important;
 }
 
 .searchBar{
@@ -24,4 +24,9 @@ body{
 #outlined-search{
     width: 30vw;
     height: 5px;
+}
+
+.loggedIn, .loggedOut{
+    display: flex;
+    flex-direction: row;
 }

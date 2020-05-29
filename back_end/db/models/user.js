@@ -13,6 +13,11 @@ const userSchema = new Schema({
         type: String,
         required: true,
         unique: false
+    },
+    gameId: {
+        type: String,
+        required: false,
+        unique: false
     }
 });
 
