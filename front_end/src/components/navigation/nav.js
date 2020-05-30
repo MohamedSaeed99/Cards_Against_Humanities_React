@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import './nav.css'; 
-import { TextField } from '@material-ui/core';
+import { Button, TextField } from '@material-ui/core';
 
 
 class Nav extends Component{
@@ -56,12 +56,12 @@ class Nav extends Component{
                     {this.state.username != null ? 
                         <div className="loggedIn">
                             <p>{this.state.username}</p> 
-                            <Link to="/logout" className="btn">Logout</Link>
+                            <Button><Link to="/logout" className="btn">Logout</Link></Button>
                         </div>
                         : 
                         <div className="loggedOut">
-                            <Link to="/login" className="btn">Login</Link>
-                            <Link to="/register" className="btn">Register</Link>
+                            <Button><Link to="/login" className="btn">Login</Link></Button>
+                            <Button><Link to="/register" className="btn">Register</Link></Button>
                         </div>}
                 </div>
             </div>

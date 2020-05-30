@@ -3,7 +3,8 @@ import { Route } from 'react-router-dom';
 import './App.css';
 import Home from './components/home';
 import Nav from './components/navigation/nav';
-import Register from './components/registeration/register';
+import Register from './components/forms/register';
+import Login from './components/forms/login';
 
 
 class App extends Component {
@@ -21,6 +22,7 @@ class App extends Component {
         <Nav></Nav>
         <Route exact path="/" render={() => <Home loggedIn={this.state.loggedIn} />} />
         <Route exact path="/register" render={() => <Register />} />
+        <Route exact path="/login" render={() => <Login />} />
       </div>
     );
   }
