@@ -14,8 +14,26 @@ class Register extends Component{
 
     // Makes post request to 
     registerUser = () => {
-        console.log(this.state.user_username)
-        console.log(this.state.user_password)
+        console.log("Here")
+        var payload = {
+            username: this.state.user_username,
+            password: this.state.user_password
+        }
+        
+        fetch("/register/", {
+            method: "POST",
+            headers: {
+                'Content-type': "application/json",
+                Accept:'application/json',
+            },
+            
+            body: JSON.stringify(payload)
+
+        }).then((response)=>{
+            response.json().then((body) => {
+                console.log(body);
+            })
+        });
     }
 
     // Stores the state of current user input
