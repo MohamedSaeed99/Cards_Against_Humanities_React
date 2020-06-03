@@ -28,8 +28,6 @@ const userSchema = new Schema({
 // Function to compare password with hashed
 userSchema.methods = {
     comparePassword : function (candidatePassword, cb) {
-                            console.log(candidatePassword)
-                            console.log(this.password);
                             bcrypt.compare(candidatePassword, this.password, (err, result) => {
                                 if(err) return cb(err);
                                 cb(null, result);

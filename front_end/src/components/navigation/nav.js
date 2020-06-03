@@ -16,6 +16,11 @@ class Nav extends Component{
     logout = () => {
         // make post to let server know u logged out
         this.props.onLogoutChange(false, null);
+        fetch("/logout/", {
+            method: "GET"
+        }).then((response) => {
+            console.log(response)
+        });
     }
 
 

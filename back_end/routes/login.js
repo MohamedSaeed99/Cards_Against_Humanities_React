@@ -1,22 +1,25 @@
 const express = require('express');
+const passport = require('../passportConfig');
 const mongoose = require('mongoose');
 const router = express.Router();
 const User = require('../db/models/user');
 
 
 router.post('/', (req, res, next) => {
-    User.findOne({username: req.body.username}, (err, user) => {
-        if(err) return res.json({success: false, message: err.message});
-
-        user.comparePassword(req.body.password, (err, result) => {
-            if(err) { 
-                console.log("error"); 
-                return res.json({success: false, message: err.message});
-            }
-            else return res.json({success: true, user: user.username});
-        });
-    });
-    
+    passport.authenticate('local', function(err, user, info) {
+        if(err) return next(err);
+        if(!user) {
+            return res.json({
+                message: info.message
+            });
+        }
+        else{
+            req.login(user, (err) => {
+                if(err) return next(err);
+                return res.json({user: user.username, success: true});
+            });
+        }
+    })(req, res, next);    
 });
 
 router.get('/', (req, res, next) => {

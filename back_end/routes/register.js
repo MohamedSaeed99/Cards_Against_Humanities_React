@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../db/models/user')
+const passport = require('passport');
 
 
 router.post('/', (req, res, next) => {
-
     const {username, password} = req.body;
 
     User.findOne({username: username}, (err, result) => {
@@ -18,20 +18,25 @@ router.post('/', (req, res, next) => {
             currCards: null
         });
 
+        if(!username || username === ""){
+            return res.json({success: false, message: "Invalid username"});
+        }
+        if(!password || password === ""){
+            console.log(password)
+            return res.json({success: false, message: "Invalid password"});
+        }
 
-        console.log(user);
         user.save( (error) => {
             if(error) {
-                return res.json({success: false, error: error.message});
+                return res.json({success: false, message: error.message});
             }
             else{
-
                 // Look at passport login function
                 // http://www.passportjs.org/docs/login/
-                // req.login(user, (err) => {
-                //     if(err) { }
-                //     return res.json({success: true, username: user.username})
-                // });
+                req.login(user, (err) => {
+                    if(err) { res.json({success: false, message: err.message})}
+                    return res.json({success: true, user: user.username});
+                });
             }
         });
     });

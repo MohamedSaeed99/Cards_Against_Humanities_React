@@ -27,8 +27,8 @@ class App extends Component {
     return (
       <div style={{height: 0, margin:0, padding:0}}>
         <Nav onLogoutChange={this.onChange} loggedIn={this.state.loggedIn} username={this.state.username}></Nav>
-        <Route exact path="/" render={() => <Home loggedIn={this.state.loggedIn} />} />
-        <Route exact path="/register" render={() => <Register onregisterChange={this.onChange} />} />
+        <Route exact path="/" render={() => <Home loggedIn={this.state.loggedIn} username={this.state.username} />} />
+        <Route exact path="/register" render={() => <Register onRegisterChange={this.onChange} />} />
         <Route exact path="/login" render={() => <Login onLoginChange={this.onChange}/>} />
       </div>
     );

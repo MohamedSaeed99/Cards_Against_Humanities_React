@@ -16,6 +16,22 @@ class Home extends Component {
         if(!this.props.loggedIn) {
             this.setState({redirectTo: "/login"});
         }
+        else {
+            var payload = {username: this.props.username};
+            fetch('/lobby/', {
+                method: "POST",
+                headers: {
+                    'Content-type': "application/json",
+                    Accept: "application/json"
+                },
+
+                body: JSON.stringify(payload)
+            }).then((response)=>{
+                response.json().then((body) => {
+                    console.log(body);
+                });
+            });
+        }
     }
 
     render(){

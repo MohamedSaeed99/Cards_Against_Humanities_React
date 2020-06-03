@@ -11,8 +11,12 @@
     border-radius: 5%;
     box-shadow: 5px 5px rgba(0, 0, 0, 0.1);
     background-color: aqua;
-    height: 350px;
+    min-height: 350px;
     width: 350px;
+}
+
+.msg {
+    height: 35px;
 }
 
 .spaceBetween{
@@ -21,6 +25,8 @@
 
 .title{
     margin-left: 10px;
+    margin-bottom: 0;
+    padding-bottom: 5px;
 }
 
 .input {
@@ -36,7 +42,7 @@
 }
 
 .formFooter{
-    margin: 50px 15px 0 0;
+    margin: 50px 15px 10px 0;
     display: flex;
     justify-content:flex-end;
 }

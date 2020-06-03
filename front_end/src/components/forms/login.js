@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Button, TextField } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 
 import './form.css';
 
@@ -9,6 +10,8 @@ class Login extends Component{
     constructor(props){
         super(props);
         this.state ={
+            redirectTo: null,
+            errorMessage: null,
             user_username: null,
             user_password: null
         }
@@ -22,6 +25,7 @@ class Login extends Component{
             username: this.state.user_username,
             password: this.state.user_password
         }
+
         fetch('/login/', {
             method: "POST",
             headers: {
@@ -35,7 +39,9 @@ class Login extends Component{
                     this.props.onLoginChange(true, body.user);
                     this.setState({redirectTo: "/"});
                 }
-                console.log(body.success);
+                else {
+                    this.setState({errorMessage: body.message})
+                }
             })
         });
     }
@@ -58,6 +64,7 @@ class Login extends Component{
             <div className="registeration">
                 <div className="form">
                     <h1 className="title">Login</h1>
+                    {this.state.errorMessage ? <Alert className="msg" variant="filled" severity="error">{this.state.errorMessage}</Alert>:<p></p>}
                     <div className="input">
                         <TextField className="username" label="Username" onChange={this.onChange}/>
                         <div className="spaceBetween"></div>
