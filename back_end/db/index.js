@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 
-const uri = "mongodb://localhost:27017";
+const uri = `${process.env.MONGO_URI}`;
+// local connection
+// const uri = "mongodb://localhost:27017";
 
 mongoose
     .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })

@@ -4,28 +4,36 @@ const User = require('../db/models/user')
 
 
 router.post('/', (req, res, next) => {
-    const user = new User({
-        username: req.body.username,
-        password: req.body.password,
-        gameId: null,
-        currCards: null
-    });
 
-    user.save( (error) => {
-        if(error) {
-            return res.json({success: false, error: error.message});
-        }
-        else{
+    const {username, password} = req.body;
 
-            // Look at passport login function
-            // http://www.passportjs.org/docs/login/
-            // req.login(user, (err) => {
-            //     if(err) {
+    User.findOne({username: username}, (err, result) => {
+        if(err) return res.json({success: false, message: err.message});
+        if(result) return res.json({success: false, message: "Username is taken"});
 
-            //     }
-            //     return res.json({success: true, username: user.username})
-            // });
-        }
+        const user = new User({
+            username: username,
+            password: password,
+            gameId: null,
+            currCards: null
+        });
+
+
+        console.log(user);
+        user.save( (error) => {
+            if(error) {
+                return res.json({success: false, error: error.message});
+            }
+            else{
+
+                // Look at passport login function
+                // http://www.passportjs.org/docs/login/
+                // req.login(user, (err) => {
+                //     if(err) { }
+                //     return res.json({success: true, username: user.username})
+                // });
+            }
+        });
     });
 });
 

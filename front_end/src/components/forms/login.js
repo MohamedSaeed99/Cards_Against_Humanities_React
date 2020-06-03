@@ -1,21 +1,43 @@
 import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
 import { Button, TextField } from '@material-ui/core';
+
 import './form.css';
 
 class Login extends Component{
 
-    constructor(){
-        super();
+    constructor(props){
+        super(props);
         this.state ={
             user_username: null,
             user_password: null
         }
     }
 
+    
     // Makes post request to 
     loginUser = () => {
-        console.log(this.state.user_username)
-        console.log(this.state.user_password)
+        
+        var payload = {
+            username: this.state.user_username,
+            password: this.state.user_password
+        }
+        fetch('/login/', {
+            method: "POST",
+            headers: {
+                'Content-type': "application/json",
+                Accept: "application/json"
+            },
+            body: JSON.stringify(payload)
+        }).then( (response) => {
+            response.json().then((body) => {
+                if(body.success){
+                    this.props.onLoginChange(true, body.user);
+                    this.setState({redirectTo: "/"});
+                }
+                console.log(body.success);
+            })
+        });
     }
 
     // Stores the state of current user input
@@ -29,6 +51,9 @@ class Login extends Component{
     }
 
     render(){
+        if (this.state.redirectTo) {
+            return <Redirect to={{ pathname: this.state.redirectTo }} />;
+        }
         return(
             <div className="registeration">
                 <div className="form">

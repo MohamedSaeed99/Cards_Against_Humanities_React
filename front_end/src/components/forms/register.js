@@ -14,7 +14,6 @@ class Register extends Component{
 
     // Makes post request to 
     registerUser = () => {
-        console.log("Here")
         var payload = {
             username: this.state.user_username,
             password: this.state.user_password

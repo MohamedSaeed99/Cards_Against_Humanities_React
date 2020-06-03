@@ -21,6 +21,15 @@ body{
     padding: 0 5px 0 15px
 }
 
+.displayUser {
+    font-family: "Roboto", "Helvetica", "Arial", serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.02857em;
+    font-weight: 500;
+    line-height: 1.75;
+    padding-right:10px;
+}
+
 #outlined-search{
     width: 30vw;
     height: 5px;

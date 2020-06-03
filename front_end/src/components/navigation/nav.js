@@ -8,25 +8,14 @@ class Nav extends Component{
     constructor(){
         super();
         this.state = {
-            username: null,
             user_input: ""
         };
     }
 
-    // Goes to routes to login page
-    goToLogin = () => {
-        console.log("Went to Login page")
-    }
-
-    // Goes to routes to login page
-    // goToReg = () => {
-    //     <Link to="/login" className="btn">
-    //     </Link>
-    // }
-
     // Logs user out
     logout = () => {
-        console.log("Logged user out");
+        // make post to let server know u logged out
+        this.props.onLogoutChange(false, null);
     }
 
 
@@ -53,13 +42,15 @@ class Nav extends Component{
 
                 <div>
                     {/* Checks if user is logged in or not */}
-                    {this.state.username != null ? 
+                    {this.props.loggedIn ? 
                         <div className="loggedIn">
-                            <p>{this.state.username}</p> 
-                            <Button><Link to="/logout" className="btn">Logout</Link></Button>
+                            <p className="displayUser">{this.props.username}</p> 
+                            <Button><Link to="/" className="btn">Home</Link></Button>
+                            <Button><Link to="/" onClick={this.logout} className="btn">Logout</Link></Button>
                         </div>
                         : 
                         <div className="loggedOut">
+                            <Button><Link to="/" className="btn">Home</Link></Button>
                             <Button><Link to="/login" className="btn">Login</Link></Button>
                             <Button><Link to="/register" className="btn">Register</Link></Button>
                         </div>}
