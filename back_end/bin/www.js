@@ -9,7 +9,6 @@
  * Module dependencies.
  */
 var app = require('../app');
-const socketIo = require("socket.io");
 const debug = require('debug')('cards_against_humanities');
 var http = require('http');
 
@@ -25,6 +24,7 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+const io = require("socket.io")(server);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -93,3 +93,13 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+
+/*
+  Socket.io
+*/
+io.on('connection', (client) => {
+  client.on('helloworld', () => {
+    client.emit('message received');
+  })
+});

@@ -1,9 +1,51 @@
+body {
+    width: 100%;
+    overflow: hidden;
+}
 
 .footer{
     position: absolute;
     bottom: 0;
     width:100%;
 }
+
 .createbtn {
     width: 100%;
+}
+
+.lobbies {
+    width: 100%;
+    height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.lobbyCard {
+    float: left;
+    margin: 10px 10px 10px 10px;
+    box-shadow: 2px 2px rgba(0, 0, 0, 0.1);
+    background-color: aqua;
+    border-radius: 5%;
+    width: 200px;
+    height: 200px;
+    cursor: pointer;
+}
+
+.lobbyCard:hover {
+    background-color: lightblue;
+}
+
+.lobbyTitle{
+    padding: 0;
+    margin: 0 0 0 10px;
+}
+
+@media screen and (max-width: 600px) {
+    .lobbyCard {
+        border-radius: 0;
+        height: 100px;
+        margin: 0 0 10px 0;
+        width: 100%;
+        display: block;
+    }
 }

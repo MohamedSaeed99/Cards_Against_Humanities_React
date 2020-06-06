@@ -24,4 +24,16 @@ router.post('/', (req, res, next) => {
     }
 });
 
+router.get('/:num', (req, res) => {
+    Game.aggregate([{$sample: {size: Number(req.params.num)}}], (err, response) => {
+        if(err) {
+            console.log("Error: ", err.message);
+        }
+        else if(response) {
+            res.send(response);
+        }
+    });
+
+});
+
 module.exports = router;
