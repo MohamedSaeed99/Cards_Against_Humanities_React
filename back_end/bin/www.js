@@ -100,6 +100,7 @@ function onListening() {
 */
 io.on('connection', (client) => {
   client.on('helloworld', () => {
-    client.emit('message received');
+    client.emit('message received', () => {
+    });
   })
 });

@@ -5,7 +5,7 @@ const uri = `${process.env.MONGO_URI}`;
 // const uri = "mongodb://localhost:27017";
 
 mongoose
-    .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
     .then(() => {
         console.log("Connected to our Mongo Database");
     })

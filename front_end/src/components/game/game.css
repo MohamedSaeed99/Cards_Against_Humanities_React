@@ -1,0 +1,42 @@
+body {
+    width: 100%;
+}
+
+.game {
+    display: flex;
+    flex-direction: column;
+}
+
+.top, .bottom {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.top {
+    height: 40vh;
+}
+
+.bottom {
+    height: 60vh;
+}
+
+.questionCard {
+    background-color: yellow;
+    width: 20%;
+}
+
+.answerCards {
+    background-color: aqua;
+    width: 80%;
+}
+
+.gameStats {
+    width: 15%;
+    background-color: lightgray;
+}
+
+.playerCards {
+    width: 85%;
+    background-color: bisque;
+}

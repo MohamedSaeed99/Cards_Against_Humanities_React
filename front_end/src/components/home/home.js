@@ -4,8 +4,8 @@ import { Redirect } from "react-router-dom";
 import "./home.css";
 
 class Home extends Component {
-    constructor(){
-        super();
+    constructor(props){
+        super(props);
         this.state={
             redirectTo: null,
             lobbies: []
@@ -15,6 +15,7 @@ class Home extends Component {
     }
 
     createLobby = () => {
+        // user has to be signed in to create a game/lobby
         if(!this.props.loggedIn) {
             this.setState({redirectTo: "/login"});
         }
@@ -31,12 +32,16 @@ class Home extends Component {
             }).then((response)=>{
                 response.json().then((body) => {
                     console.log(body);
+                    this.props.onJoinGame(true, body.gameId);
+                    this.setState({
+                        redirectTo: "/game"
+                    });
                 });
             });
         }
     }
 
-
+    // gets a maxiumum of 10 lobbies
     retrieveLobbies = () => {
         fetch('/lobby/10', {
             method: "GET",
@@ -53,9 +58,34 @@ class Home extends Component {
         });
     }
 
-
-    onClick = (lobby) => {
-        console.log(lobby);
+    // adds user into the game
+    enterGame = (lobby) => {
+        if(!this.props.loggedIn) {
+            this.setState({redirectTo: "/login"});
+        }
+        else{
+            var payload = {
+                username: this.props.username,
+                lobbyId: lobby.gameId
+            }
+            fetch("/lobby/add", {
+                method: "PUT",
+                headers: {
+                    "Content-type": "application/json",
+                    Accept: "application/json"
+                },
+                body: JSON.stringify(payload)
+            }).then( (response) => {
+                response.json().then((body) => {
+                    if(body.success) {
+                        this.props.onJoinGame(true, body.gameId);
+                        this.setState({
+                            redirectTo: "/game"
+                        });
+                    }
+                });
+            });
+        }
     }
 
     render(){
@@ -69,7 +99,7 @@ class Home extends Component {
                 </div>
                 <div className="lobbies">
                     {this.state.lobbies.map((lobby) => (
-                        <div className="lobbyCard" key={lobby.host} onClick={() => this.onClick(lobby)}> 
+                        <div className="lobbyCard" key={lobby.host} onClick={() => this.enterGame(lobby)}> 
                             <h3 className="lobbyTitle">{lobby.host}</h3>
                         </div>
                     ))}

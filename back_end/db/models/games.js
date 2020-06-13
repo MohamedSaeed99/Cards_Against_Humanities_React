@@ -17,6 +17,12 @@ const gameSchema = new Schema({
         required: true,
         unique: true
     },
+    players: {
+        type: Array,
+        required: true,
+        unique: true,
+    },
 });
+
 
 module.exports = mongoose.model("Game", gameSchema);
