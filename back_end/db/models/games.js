@@ -9,7 +9,12 @@ const gameSchema = new Schema({
     },
     queCard: {
         type: String,
-        required: false,
+        required: true,
+        unique: false
+    },
+    numOfAnswers: {
+        type: Number,
+        required: true,
         unique: false
     },
     gameId: {

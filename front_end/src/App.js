@@ -6,16 +6,22 @@ import Nav from './components/navigation/nav';
 import Register from './components/forms/register';
 import Login from './components/forms/login';
 import Game from './components/game/game';
+import openSocket from 'socket.io-client';
+
 
 
 class App extends Component {
   constructor (){
     super();
     this.state = {
+      loggedIn: false,
+      inGame: false,
       username: null,
       game: null,
-      loggedIn: false,
-      inGame: false
+      queCard: null,
+      ansCards: null,
+      numOfAnswers: null,
+      socket: openSocket('http://localhost:' + (process.env.PORT || 3001)),
     }
   }
 
@@ -26,10 +32,13 @@ class App extends Component {
     });
   } 
 
-  joinedGame = (joined, gameId) => {
+  joinedGame = (joined, gameId, queCard, numOfAnswer, ansCards) => {
     this.setState({
       inGame: joined,
-      game: gameId
+      game: gameId,
+      queCard: queCard,
+      numOfAnswers: numOfAnswer,
+      ansCards: ansCards
     });
   } 
 
@@ -42,15 +51,21 @@ class App extends Component {
           joinedGame={this.state.inGame} 
           loggedIn={this.state.loggedIn} 
           username={this.state.username}
-          gameId={this.state.game}>
+          gameId={this.state.game}
+          socket={this.state.socket}>
         </Nav>
         <Route exact path="/" render={() => <Home 
                                               loggedIn={this.state.loggedIn} 
                                               username={this.state.username} 
-                                              onJoinGame={this.joinedGame} />} />
+                                              onJoinGame={this.joinedGame}
+                                              socket={this.state.socket} />} />
         <Route exact path="/register" render={() => <Register onRegisterChange={this.onChange} />} />
         <Route exact path="/login" render={() => <Login onLoginChange={this.onChange}/>} />
-        <Route exact path="/game" render={() => <Game />} />
+        <Route exact path="/game" render={() => <Game
+                                                  socket={this.state.socket} 
+                                                  queCard={this.state.queCard}
+                                                  numOfAnswers={this.state.numOfAnswers}
+                                                  AnswerCards={this.state.ansCards} />} />
       </div>
     );
   }

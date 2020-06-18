@@ -3,6 +3,10 @@
 /*
     This is the server inlcude socket.io in here
 */
+const regRouter = require('../routes/register');
+const loginRouter = require('../routes/login');
+const lobbyRouter = require('../routes/lobby');
+const logoutRouter = require('../routes/logout');
 
 
 /**
@@ -25,6 +29,13 @@ app.set('port', port);
 
 var server = http.createServer(app);
 const io = require("socket.io")(server);
+
+app.io = io;
+
+app.use("/register", regRouter);
+app.use("/login", loginRouter);
+app.use("/logout", logoutRouter);
+app.use("/lobby", lobbyRouter);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -98,9 +109,25 @@ function onListening() {
 /*
   Socket.io
 */
-io.on('connection', (client) => {
-  client.on('helloworld', () => {
-    client.emit('message received', () => {
-    });
-  })
+io.on('connection', (socket) => {
+  // adds the host to the socket room
+  socket.on('Created Game', (data) => {
+    socket.room = data.gameId;
+    socket.username = data.username;
+    socket.join(data.gameId);
+  });
+
+  // emits signal to clients in the same lobby as host to leave
+  socket.on('Host Left', (data) => {
+    socket.to(data.gameId).emit("Leave");
+  });
+
+
+  // adds users to the socket room
+  socket.on('Game Joined', (data) => {
+    socket.room = data.gameId;
+    socket.username = data.username;
+    socket.join(data.gameId);
+    socket.to(data.gameId).emit("User Joined", data.username + " Has Joined the Game");
+  });
 });
