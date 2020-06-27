@@ -117,9 +117,16 @@ io.on('connection', (socket) => {
     socket.join(data.gameId);
   });
 
-  // emits signal to clients in the same lobby as host to leave
-  socket.on('Host Left', (data) => {
-    socket.to(data.gameId).emit("Leave");
+  // Emission that would kick every player within the hosted lobby out
+  socket.on('Host Leaving', (data) => {
+    // TODO: Destory the game room
+    socket.to(data.gameId).emit("Host Left");
+  });
+
+  // Emission that would kick every player within the hosted lobby out
+  socket.on('User Leaving', (data) => {
+    // TODO: get rid of user from game room
+    socket.to(data.gameId).emit("User Left", socket.username);
   });
 
 
@@ -128,6 +135,6 @@ io.on('connection', (socket) => {
     socket.room = data.gameId;
     socket.username = data.username;
     socket.join(data.gameId);
-    socket.to(data.gameId).emit("User Joined", data.username + " Has Joined the Game");
+    socket.to(data.gameId).emit("User Joined", data.username);
   });
 });

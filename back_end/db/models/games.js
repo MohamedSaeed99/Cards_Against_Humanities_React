@@ -27,6 +27,11 @@ const gameSchema = new Schema({
         required: true,
         unique: true,
     },
+    points: {
+        type: Array,
+        required: true,
+        unique: false,
+    }
 });
 
 

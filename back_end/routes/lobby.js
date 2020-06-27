@@ -5,11 +5,12 @@ const User = require('../db/models/user');
 const cardParser = require("../cards/file_parser")
 const crypto = require("crypto");
 
+// gets a random question card
 const randQueCard = () => {
     return cardParser.queCards[Math.floor(Math.random() * cardParser.queCards.length)]
 }
 
-
+// gets 6 randome answer cards
 const randAnsCards = (current=0) => {
     // Calculates how many cards the user needs, total should be 6 cards
     var amountNeeded = 6 - current;
@@ -22,6 +23,8 @@ const randAnsCards = (current=0) => {
     return cards;
 }
 
+
+// creates the lobby
 router.post('/', (req, res, next) => {
     if(req.isAuthenticated()) {
 
@@ -32,7 +35,8 @@ router.post('/', (req, res, next) => {
             gameId: crypto.randomBytes(20).toString('hex'),
             players: [req.body.username],
             queCard: randCard[0],
-            numOfAnswers: randCard[1]
+            numOfAnswers: randCard[1],
+            points: [0]
         });
 
         game.save( (error) => {
@@ -63,6 +67,7 @@ router.post('/', (req, res, next) => {
 });
 
 
+// adds user to a lobby
 router.put('/add', (req, res, next) => {
     if(req.isAuthenticated()){
 
@@ -78,7 +83,8 @@ router.put('/add', (req, res, next) => {
                 // updates the game of the new user that joined
                 Game.update (
                     { gameId: req.body.lobbyId }, 
-                    { $addToSet: { players: req.body.username }}, (err, result) => {
+                    { $addToSet: { players: req.body.username },
+                    $push: { points: 0 }}, (err, result) => {
                         if(err){
                             console.log(err.message);
                             return res.json({success: false, message: err.message});
@@ -87,9 +93,6 @@ router.put('/add', (req, res, next) => {
                             return res.json({
                                 success: true, 
                                 gameId: req.body.lobbyId,
-                                queCards: result.queCard,
-                                numOfAnswers: result.numOfAnswers,
-                                ansCards: ansCards
                             });
                         }
                     }
@@ -99,6 +102,8 @@ router.put('/add', (req, res, next) => {
     }
 });
 
+
+// removes user from a lobby
 router.put('/leave', (req, res, next) => {
     if(req.isAuthenticated()){
         Game.findOne({gameId: req.body.gameId}, (err, result) => {
@@ -153,6 +158,7 @@ router.put('/leave', (req, res, next) => {
 });
 
 
+// get 'num' number of lobbies
 router.get('/:num', (req, res) => {
     Game.aggregate([{$sample: {size: Number(req.params.num)}}], (err, response) => {
         if(err) {
@@ -160,9 +166,44 @@ router.get('/:num', (req, res) => {
             throw err;
         }
         else if(response) {
-            res.send(response);
+            return res.send(response);
         }
     });
 });
+
+
+// retrieves the games question card
+router.get("/data/:gameId", (req, res) => {
+    Game.findOne({gameId: req.params.gameId}, (err, result) => {
+        if(err) {
+            console.log(err.message);
+            throw err;
+        }
+        else {
+            return res.json({
+                question: result.queCard,
+                numOfAnswers: result.numOfAnswers,
+                players: result.players,
+                points: result.points
+            });
+        }
+    });
+});
+
+// retrieves answer cards of a user
+router.get("/userCards/:user", (req, res) => {
+    User.findOne({username: req.params.user}, (err, result) => {
+        if(err) {
+            console.log(err.message);
+            throw err;
+        }
+        else {
+            return res.json({
+                answers: result.currCards,
+            });
+        }
+    });
+});
+
 
 module.exports = router;
