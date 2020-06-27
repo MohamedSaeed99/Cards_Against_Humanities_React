@@ -18,9 +18,6 @@ class App extends Component {
       inGame: false,
       username: null,
       game: null,
-      queCard: null,
-      ansCards: null,
-      numOfAnswers: null,
       socket: openSocket('http://localhost:' + (process.env.PORT || 3001)),
     }
   }
@@ -32,13 +29,10 @@ class App extends Component {
     });
   } 
 
-  joinedGame = (joined, gameId, queCard, numOfAnswer, ansCards) => {
+  joinedGame = (joined, gameId) => {
     this.setState({
       inGame: joined,
       game: gameId,
-      queCard: queCard,
-      numOfAnswers: numOfAnswer,
-      ansCards: ansCards
     });
   } 
 
@@ -62,10 +56,10 @@ class App extends Component {
         <Route exact path="/register" render={() => <Register onRegisterChange={this.onChange} />} />
         <Route exact path="/login" render={() => <Login onLoginChange={this.onChange}/>} />
         <Route exact path="/game" render={() => <Game
+                                                  onLeaveGame={this.joinedGame}
                                                   socket={this.state.socket} 
-                                                  queCard={this.state.queCard}
-                                                  numOfAnswers={this.state.numOfAnswers}
-                                                  AnswerCards={this.state.ansCards} />} />
+                                                  gameId={this.state.game}
+                                                  username={this.state.username} />} />
       </div>
     );
   }

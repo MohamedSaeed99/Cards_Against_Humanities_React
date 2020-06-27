@@ -30,12 +30,13 @@ class Home extends Component {
                 body: JSON.stringify(payload)
             }).then((response)=>{
                 response.json().then((body) => {
-                    console.log(body.ansCards);
-                    this.props.onJoinGame(true, body.gameId, body.queCards, body.numOfAnswers, body.ansCards);
+
+                    this.props.onJoinGame(true, body.gameId);
                     this.props.socket.emit("Created Game", {gameId: body.gameId, username: this.props.username});
                     this.setState({
                         redirectTo: "/game"
                     });
+                    
                 });
             });
         }
@@ -78,7 +79,7 @@ class Home extends Component {
             }).then( (response) => {
                 response.json().then((body) => {
                     if(body.success) {
-                        this.props.onJoinGame(true, body.gameId, body.queCards, body.numOfAnswers);
+                        this.props.onJoinGame(true, body.gameId);
                         this.setState({
                             redirectTo: "/game"
                         });
@@ -92,8 +93,6 @@ class Home extends Component {
 
     componentDidMount() {
         this.retrieveLobbies();
-        this.props.socket.on("User Joined", (str) => {console.log(str)});
-        this.props.socket.on();
     }
 
     render(){

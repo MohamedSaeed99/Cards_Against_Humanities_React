@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Redirect, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import './nav.css'; 
 import { Button, TextField } from '@material-ui/core';
 
@@ -8,19 +8,7 @@ class Nav extends Component{
         super(props);
         this.state = {
             user_input: "",
-            redirectTo: null
         };
-    }
-
-
-    // Redirects user to home page upon host leaving
-    componentDidMount() {
-        this.props.socket.on("Leave", () => {
-            console.log("Host Left");
-            this.setState({
-                redirectTo: "/"
-            })
-        })
     }
 
     // Logs user out
@@ -58,7 +46,10 @@ class Nav extends Component{
             response.json().then((body) => {
                 if(body.success) {
                     if(body.host) {
-                        this.props.socket.emit("Host Left", {gameId: this.props.gameId});
+                        this.props.socket.emit("Host Leaving", {gameId: this.props.gameId});
+                    }
+                    else {
+                        this.props.socket.emit("User Leaving", {gameId: this.props.gameId});
                     }
                     this.props.onLeaveGame(false, null);
                 }
@@ -94,9 +85,6 @@ class Nav extends Component{
     
 
     render(){
-        if (this.state.redirectTo) {
-            return <Redirect to={{ pathname: "/" }} />;
-        }
         return(
             <div className='navigationBar'>
                 <div className='searchBar'>
