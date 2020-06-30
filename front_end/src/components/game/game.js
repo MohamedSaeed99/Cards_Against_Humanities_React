@@ -33,7 +33,6 @@ class Game extends Component {
 
         // removes players from the lobby
         this.props.socket.on("Host Left", () => {
-            console.log("HOST LEFT");
             this.props.onLeaveGame(false, null);
             this.setState({
                 redirectTo: "/"
@@ -54,7 +53,13 @@ class Game extends Component {
         });
     }
 
-    // gets the question card from the server
+    /*
+        Game Data Includes:
+            Question Card
+            Number of Answers per queCard
+            Players
+            Points
+    */
     retrieveGameData = () => {
         fetch("lobby/data/" + this.props.gameId, {
             method: "GET",
@@ -93,17 +98,23 @@ class Game extends Component {
     }
 
 
+    submitUserAnswer = (event) => {
+        console.log(event.currentTarget.textContent);
+    }
+
+
     renderUserCards = () => {
         const userCards = this.state.userCards;
         const cards = userCards.map((card, index) => {
                     return(
-                        <div className="userCard" key={index.toString()}>
+                        <div className="userCard" key={index.toString()} onClick={this.submitAnswer}>
                             <p dangerouslySetInnerHTML={{__html: card}}/>
                         </div>
-                    )
+                    );
             });
         return (cards);
     }
+
 
     renderUsernames = () => {
         const players = this.state.players;
