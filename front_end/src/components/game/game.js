@@ -10,8 +10,9 @@ class Game extends Component {
             points: [],
             players: [],
             queCard: null,
-            answers: {},
-            possibleAnswers: null,
+            allAnswers: {},
+            submittedAnswers: [],
+            numOfAnswers: null,
             userCards: [],
             redirectTo: null
         }
@@ -49,7 +50,13 @@ class Game extends Component {
                 players: this.state.players,
                 points: this.state.points
             });
+        });
 
+        this.props.socket.on("Answer Cards", (data) => {
+            this.state.allAnswers[data.user] = data.cards;
+            this.setState({
+                allAnswers: this.state.allAnswers
+            });
         });
     }
 
@@ -71,7 +78,7 @@ class Game extends Component {
             response.json().then((body) => {
                 this.setState({
                     queCard: body.question,
-                    possibleAnswers: body.numOfAnswers,
+                    numOfAnswers: body.numOfAnswers,
                     players: body.players,
                     points: body.points
                 });
@@ -97,9 +104,38 @@ class Game extends Component {
         });
     }
 
-
+    
     submitUserAnswer = (event) => {
-        console.log(event.currentTarget.textContent);
+        if(this.state.numOfAnswers > 0){
+            const htmlText = event.currentTarget.innerHTML;
+            const cardText = htmlText.substring(3, htmlText.indexOf("</p>"));
+
+            this.state.submittedAnswers.push(cardText);
+            
+            this.removeUserCardFromList(cardText);
+            this.state.numOfAnswers -= 1;
+            this.setState({
+                userCards: this.state.userCards,
+                numOfAnswers: this.state.numOfAnswers,
+                submittedAnswers: this.state.submittedAnswers
+            });
+            if(this.state.numOfAnswers === 0) {
+                this.props.socket.emit("Submitted Answers", {
+                    gameId: this.props.gameId,
+                    username: this.props.username,
+                    submittedCards: this.state.submittedAnswers
+                });
+            }
+        }
+    }
+
+
+    removeUserCardFromList = (cardText) => {
+        this.state.userCards.forEach((item, index) => {
+            if(item.split('/').join('') === cardText.split('/').join('')){
+                this.state.userCards.splice(index, 1);
+            }
+        });
     }
 
 
@@ -107,7 +143,7 @@ class Game extends Component {
         const userCards = this.state.userCards;
         const cards = userCards.map((card, index) => {
                     return(
-                        <div className="userCard" key={index.toString()} onClick={this.submitAnswer}>
+                        <div className="userCard" key={index.toString()} onClick={this.submitUserAnswer}>
                             <p dangerouslySetInnerHTML={{__html: card}}/>
                         </div>
                     );
@@ -128,6 +164,31 @@ class Game extends Component {
         return (users);
     }
 
+
+    renderAnswers = () => {
+        const answerArray = [];
+        const answers = this.state.allAnswers;
+        for(var submission in answers){
+            if(answers.hasOwnProperty(submission)){
+                answerArray.push(answers[submission]);
+            }
+        }
+
+        const cards = answerArray.map((group, index) => {
+                return (
+                    <div key={index.toString()}>
+                        {group.map((card, ind) => {
+                            return (<div className="userCard" key={ind.toString()}>
+                                    <p dangerouslySetInnerHTML={{__html: card}}/>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )
+        });
+        return cards;
+    }
+
     
     render(){
         if (this.state.redirectTo) {
@@ -142,7 +203,7 @@ class Game extends Component {
                         </div>
                     </div>
                     <div className="answerCards">
-                        <p>Location of answer cards</p>
+                        {this.renderAnswers()}
                     </div>
                 </div>
                 <div className="bottom">

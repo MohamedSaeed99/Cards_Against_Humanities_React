@@ -28,12 +28,12 @@ body{
     justify-content: center;
     align-items: center;
     background-color: yellow;
-    width: 250px;
+    width: 15vw;
 }
 
 .queCard {
     width: 90%;
-    height: 40vh;
+    height: 30vh;
     background-color: black;
     text-align: center;
     color: white;
@@ -61,7 +61,7 @@ body{
     border-color: rgba(0,0,0, 0.5);
 }
 
-.playerCards {
+.playerCards, .answerCards {
     width: 100%;
     display: flex;
     background-color: bisque;
@@ -69,7 +69,8 @@ body{
 }
 
 .userCard {
-    min-width: 200px;
+    min-width: 300px;
+    max-width: 300px;
     height: 30vh;
     background-color: white;
     text-align: center;

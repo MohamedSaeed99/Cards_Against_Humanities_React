@@ -14,7 +14,7 @@
 - [x] Lobby Creation
 - [x] Leaving Lobbies
 - [x] Joinging Lobbies
-- [] Submitting Answers to questions
+- [x] Submitting Answers to questions
 - [] Point System
 - [] Friend System (Adding and Removing)
 - [] Inviting Friends to Lobby

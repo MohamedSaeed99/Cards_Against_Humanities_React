@@ -137,4 +137,11 @@ io.on('connection', (socket) => {
     socket.join(data.gameId);
     socket.to(data.gameId).emit("User Joined", data.username);
   });
+
+  socket.on("Submitted Answers", (data) => {
+    io.in(data.gameId).emit("Answer Cards", ({
+      user: data.username,
+      cards: data.submittedCards
+    }));
+  });
 });
