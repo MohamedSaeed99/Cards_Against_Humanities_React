@@ -7,6 +7,11 @@ const gameSchema = new Schema({
         required: true,
         unique: true
     },
+    czar: {
+        type: String,
+        required: true,
+        unique: false,
+    },
     queCard: {
         type: String,
         required: true,
@@ -31,7 +36,7 @@ const gameSchema = new Schema({
         type: Array,
         required: true,
         unique: false,
-    }
+    },
 });
 
 

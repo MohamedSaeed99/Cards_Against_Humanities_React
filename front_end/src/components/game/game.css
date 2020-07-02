@@ -7,12 +7,13 @@ body{
 .game {
     display: flex;
     flex-direction: column;
+    background-color: lightgray;
 }
 
 .top, .bottom {
+    width: 100%;
     display: flex;
     flex-direction: row;
-    width: 100%;
 }
 
 .top {
@@ -21,70 +22,87 @@ body{
 
 .bottom {
     height: 60vh;
+    border-style: solid none none none;
+    border-color: rgba(0,0,0, 0.7);
 }
 
 .questionCardArea {
     display: flex;
-    justify-content: center;
+    min-width: 300px;
+    max-width: 300px;
     align-items: center;
-    background-color: yellow;
-    width: 15vw;
+    flex-direction: column;
+    justify-content: center;
+    border-style: none solid none none;
+    border-color: rgba(0,0,0, 0.3);
 }
 
-.queCard {
-    width: 90%;
-    height: 30vh;
-    background-color: black;
-    text-align: center;
-    color: white;
-    border-radius: 5%;
+.submitArea {
+    padding: 5px 0px 0px 0px;
 }
 
-.answerCards {
-    background-color: aqua;
-    width: 85vw;
-}
-
-.gameStats {
+.submitBtn {
     width: 150px;
-    background-color: lightgray;
+    background-color: white;
 }
 
-.players{
-    padding: 0;
-    margin: 0;
-    display: block;
-    width: 146px;
-    height: 30px;
+.queCard, .userCard {
     border-style: solid;
     border-width: 1px;
     border-color: rgba(0,0,0, 0.5);
 }
 
+.queCard {
+    color: white;
+    height: 30vh;
+    min-width: 200px;
+    max-width: 200px;
+    border-radius: 5%;
+    text-align: center;
+    background-color: black;
+}
+
+.gameStats {
+    min-width: 150px;
+    max-width: 150px;
+    border-color: rgba(0,0,0, 0.3);
+    border-style: none solid none none;
+}
+
+.players{
+    margin: 0;
+    padding: 0;
+    width: 150px;
+    height: 30px;
+    display: block;
+    border-width: 1px;
+    border-color: rgba(0,0,0, 0.5);
+    border-style: none none solid none;
+}
+
 .playerCards, .answerCards {
     width: 100%;
     display: flex;
-    background-color: bisque;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 .userCard {
-    min-width: 300px;
-    max-width: 300px;
     height: 30vh;
-    background-color: white;
-    text-align: center;
-    border-radius: 2%;
-    margin: 30px 10px 0 10px;
-    transition: all .2s ease-in-out;
+    min-width: 200px;
+    max-width: 200px;
     cursor: pointer;
+    border-radius: 2%;
+    text-align: center;
+    margin: 30px 10px 0 10px;
+    background-color: white;
+    transition: all .2s ease-in-out;
 }
 
 .userCard:hover {
     transform: scale(1.1);
 }
 
-/* hides scroll bar
-.playerCards::-webkit-scrollbar {
+/* hides scroll bar */
+.playerCards::-webkit-scrollbar, .answerCards::-webkit-scrollbar {
     display: none;
-} */
+}

@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import { Redirect } from "react-router-dom";
+import { Button } from '@material-ui/core';
 import './game.css'
 
 class Game extends Component {
@@ -8,9 +9,11 @@ class Game extends Component {
         super(props);
         this.state = {
             points: [],
+            czar: false,
             players: [],
             queCard: null,
             allAnswers: {},
+            selectedAnswers: [],
             submittedAnswers: [],
             numOfAnswers: null,
             userCards: [],
@@ -53,9 +56,10 @@ class Game extends Component {
         });
 
         this.props.socket.on("Answer Cards", (data) => {
-            this.state.allAnswers[data.user] = data.cards;
+            const answers = this.state.allAnswers;
+            answers[data.user] = data.cards
             this.setState({
-                allAnswers: this.state.allAnswers
+                allAnswers: answers
             });
         });
     }
@@ -80,7 +84,8 @@ class Game extends Component {
                     queCard: body.question,
                     numOfAnswers: body.numOfAnswers,
                     players: body.players,
-                    points: body.points
+                    points: body.points,
+                    czar: body.czar === this.props.username
                 });
             });
         });
@@ -113,13 +118,13 @@ class Game extends Component {
             this.state.submittedAnswers.push(cardText);
             
             this.removeUserCardFromList(cardText);
-            this.state.numOfAnswers -= 1;
+            const numOfAnswers = this.state.numOfAnswers - 1;
             this.setState({
                 userCards: this.state.userCards,
-                numOfAnswers: this.state.numOfAnswers,
+                numOfAnswers: numOfAnswers,
                 submittedAnswers: this.state.submittedAnswers
             });
-            if(this.state.numOfAnswers === 0) {
+            if(numOfAnswers === 0) {
                 this.props.socket.emit("Submitted Answers", {
                     gameId: this.props.gameId,
                     username: this.props.username,
@@ -189,6 +194,11 @@ class Game extends Component {
         return cards;
     }
 
+
+    chooseAnswer = () => {
+
+    }
+
     
     render(){
         if (this.state.redirectTo) {
@@ -200,6 +210,13 @@ class Game extends Component {
                     <div className="questionCardArea">
                         <div className="queCard">
                             <p dangerouslySetInnerHTML={{__html: this.state.queCard}}/>
+                        </div>
+                        <div className="submitArea">
+                            {this.state.czar ? 
+                                <Button variant="outlined" className="submitBtn" onClick={this.chooseAnswer}>Submit</Button> 
+                                :
+                                <Button variant="outlined" className="submitBtn" disabled>Submit</Button> }
+
                         </div>
                     </div>
                     <div className="answerCards">

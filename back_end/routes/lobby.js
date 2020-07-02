@@ -32,6 +32,7 @@ router.post('/', (req, res, next) => {
 
         const game = new Game({
             host: req.body.username,
+            czar: req.body.username,
             gameId: crypto.randomBytes(20).toString('hex'),
             players: [req.body.username],
             queCard: randCard[0],
@@ -57,7 +58,7 @@ router.post('/', (req, res, next) => {
                             gameId: game.gameId, 
                             queCards: game.queCard, 
                             numOfAnswers: game.numOfAnswers,
-                            ansCards: ansCards
+                            ansCards: ansCards,
                         });
                     }
                 });
@@ -184,7 +185,8 @@ router.get("/data/:gameId", (req, res) => {
                 question: result.queCard,
                 numOfAnswers: result.numOfAnswers,
                 players: result.players,
-                points: result.points
+                points: result.points,
+                czar: result.czar
             });
         }
     });
