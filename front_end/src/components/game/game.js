@@ -171,32 +171,38 @@ class Game extends Component {
 
 
     renderAnswers = () => {
-        const answerArray = [];
         const answers = this.state.allAnswers;
-        for(var submission in answers){
-            if(answers.hasOwnProperty(submission)){
-                answerArray.push(answers[submission]);
-            }
-        }
 
-        const cards = answerArray.map((group, index) => {
-                return (
-                    <div key={index.toString()}>
-                        {group.map((card, ind) => {
-                            return (<div className="userCard" key={ind.toString()}>
-                                    <p dangerouslySetInnerHTML={{__html: card}}/>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )
+        const cards = Object.keys(answers).map((key, index) => {
+            return (
+                <div className="groupAnswer" key={key}>
+                    {answers[key].map((card, ind) => {
+                        return (<div className="answerCard" key={ind.toString()} onClick={this.changeToSelectColor}>
+                                <p dangerouslySetInnerHTML={{__html: card}}/>
+                            </div>
+                        );
+                    })}
+                </div>
+            )
         });
         return cards;
     }
 
 
-    chooseAnswer = () => {
+    changeBackgroundColorToSelectColor = (event) => {
+        const answerCards = document.getElementsByClassName("answerCard");
+        for(let i = 0; i < answerCards.length; i++){
+            answerCards[i].style.backgroundColor = "white";
+        }
 
+        const children = event.target.parentElement.childNodes;
+        for(let i = 0; i < children.length; i++){
+            children[i].style.backgroundColor = "lightblue";
+        }
+    }
+
+
+    chooseAnswer = () => {
     }
 
     
