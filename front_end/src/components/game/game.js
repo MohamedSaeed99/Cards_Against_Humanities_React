@@ -62,6 +62,27 @@ class Game extends Component {
                 allAnswers: answers
             });
         });
+
+        this.props.socket.on("Winning Cards", (data) => {
+            // highlight cards for a second and then erase
+            this.highlightWinningCards(data);
+            setTimeout(function(){ 
+                this.setState({
+                    allAnswers: {},
+                    selectedAnswers: [],
+                    submittedAnswers: []
+                });
+            }.bind(this), 2000);
+        });
+    }
+
+    highlightWinningCards = (cards) => {
+        const answerCards = document.getElementsByClassName("answerCard");
+        for(let i = 0; i < answerCards.length; i++){
+            if(cards.includes(answerCards[i].innerHTML.substring(3, answerCards[i].innerHTML.indexOf("</p>")))){
+                answerCards[i].style.backgroundColor = "lightblue";
+            }
+        }
     }
 
     /*
@@ -111,7 +132,7 @@ class Game extends Component {
 
     
     submitUserAnswer = (event) => {
-        if(this.state.numOfAnswers > 0){
+        if(this.state.numOfAnswers > 0 /*&& !this.state.czar*/){
             const htmlText = event.currentTarget.innerHTML;
             const cardText = htmlText.substring(3, htmlText.indexOf("</p>"));
 
@@ -173,12 +194,12 @@ class Game extends Component {
     renderAnswers = () => {
         const answers = this.state.allAnswers;
 
-        const cards = Object.keys(answers).map((key, index) => {
+        const cards = Object.keys(answers).map((key) => {
             return (
                 <div className="groupAnswer" key={key}>
                     {answers[key].map((card, ind) => {
-                        return (<div className="answerCard" key={ind.toString()} onClick={this.changeToSelectColor}>
-                                <p dangerouslySetInnerHTML={{__html: card}}/>
+                        return (<div className="answerCard" key={ind.toString()} onClick={this.changeBackgroundColorToSelectColor}>
+                                <p dangerouslySetInnerHTML={{__html: card}} />
                             </div>
                         );
                     })}
@@ -190,21 +211,54 @@ class Game extends Component {
 
 
     changeBackgroundColorToSelectColor = (event) => {
-        const answerCards = document.getElementsByClassName("answerCard");
-        for(let i = 0; i < answerCards.length; i++){
-            answerCards[i].style.backgroundColor = "white";
-        }
+        if(this.state.czar){
+            const answerCards = document.getElementsByClassName("answerCard");
+            for(let i = 0; i < answerCards.length; i++){
+                answerCards[i].style.backgroundColor = "white";
+            }
 
-        const children = event.target.parentElement.childNodes;
-        for(let i = 0; i < children.length; i++){
-            children[i].style.backgroundColor = "lightblue";
+            // gets the higher level of the selected div to highlight all the cards belonging to one player
+            var parentDiv = event.target.parentElement;
+            while(parentDiv.className !== "groupAnswer"){
+                parentDiv = parentDiv.parentElement
+            }
+
+            const children = parentDiv.childNodes;
+
+            let answerInText = [];
+            for(let i = 0; i < children.length; i++){
+                children[i].style.backgroundColor = "lightblue";
+                answerInText.push(children[i].innerHTML.substring(3, children[i].innerHTML.indexOf("</p>")));
+            }
+
+            this.setState({
+                selectedAnswers: answerInText
+            });
         }
     }
 
 
     chooseAnswer = () => {
+        // Update the database
+        // get the username of the winner
+        console.log("HERER");
+        const winningUser = this.findUsername();
+        console.log("HERER");
+        this.props.socket.emit("Selected Answers", {
+            user: winningUser,
+            winningCards: this.state.selectedAnswers,
+            gameId: this.props.gameId
+        });
     }
 
+
+    findUsername = () => {
+        for(var key in this.state.allAnswers){
+            if(this.state.allAnswers[key].every(v => this.state.selectedAnswers.includes(v))){
+                return key
+            }
+        }
+    }
     
     render(){
         if (this.state.redirectTo) {

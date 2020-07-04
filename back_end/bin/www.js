@@ -144,4 +144,8 @@ io.on('connection', (socket) => {
       cards: data.submittedCards
     }));
   });
+
+  socket.on("Selected Answers", (data) => {
+    io.in(data.gameId).emit("Winning Cards", data.winningCards);
+  });
 });
