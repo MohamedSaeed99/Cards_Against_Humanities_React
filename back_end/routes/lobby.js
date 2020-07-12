@@ -13,7 +13,7 @@ const randQueCard = () => {
 // gets 6 randome answer cards
 const randAnsCards = (current=0) => {
     // Calculates how many cards the user needs, total should be 6 cards
-    var amountNeeded = 6 - current;
+    var amountNeeded = 12 - current;
     var cards = [];
 
     for(var i = 0; i < amountNeeded; i++){
@@ -82,22 +82,36 @@ router.put('/add', (req, res, next) => {
             }
             else{
                 // updates the game of the new user that joined
-                Game.update (
-                    { gameId: req.body.lobbyId }, 
-                    { $addToSet: { players: req.body.username },
-                    $push: { points: 0 }}, (err, result) => {
-                        if(err){
-                            console.log(err.message);
-                            return res.json({success: false, message: err.message});
+                Game.findOne({gameId: req.body.lobbyId},  (err, result) => {
+                    if(err) {
+                        throw err;
+                    }
+                    else{
+                        // Prevents the addition of duplicate username to player list and point list
+                        if(result.players.includes(req.body.username)){
+                            return res.json({
+                                success: true,
+                                gameId: req.body.lobbyId
+                            });
                         }
                         else{
-                            return res.json({
-                                success: true, 
-                                gameId: req.body.lobbyId,
+                            Game.update({gameId: req.body.lobbyId}, 
+                                {$addToSet: {players: req.body.username},
+                                $push: {points: 0}}, (err) => {
+                                    if(err){
+                                        console.log(err.message);
+                                        return res.json({success: false, message: err.message});
+                                    }
+                                    else{
+                                        return res.json({
+                                            success: true, 
+                                            gameId: req.body.lobbyId,
+                                        });
+                                    }
                             });
                         }
                     }
-                );
+                });
             }
         });
     }
@@ -105,7 +119,7 @@ router.put('/add', (req, res, next) => {
 
 
 // removes user from a lobby
-router.put('/leave', (req, res, next) => {
+router.put('/leave', (req, res) => {
     if(req.isAuthenticated()){
         Game.findOne({gameId: req.body.gameId}, (err, result) => {
             if(err) {
@@ -192,6 +206,7 @@ router.get("/data/:gameId", (req, res) => {
     });
 });
 
+
 // retrieves answer cards of a user
 router.get("/userCards/:user", (req, res) => {
     User.findOne({username: req.params.user}, (err, result) => {
@@ -204,6 +219,41 @@ router.get("/userCards/:user", (req, res) => {
                 answers: result.currCards,
             });
         }
+    });
+});
+
+
+router.get("/cards/:amount", (req, res) => {
+    return res.json({
+        cards: randAnsCards(Number(req.params.amount))
+    });
+});
+
+
+router.put("/newround", (req, res) => {
+    let randomQue = randQueCard();
+    let points = req.body.points;
+    let indexOfPrevCzar = req.body.players.indexOf(req.body.czar);
+    let indexOfNewCzar = indexOfPrevCzar + 1;
+    let indexOfWinner= req.body.players.indexOf(req.body.winner); 
+    let newCzar;
+
+    if(indexOfNewCzar >= req.body.players.length){
+        newCzar = req.body.players[0];
+    }
+    else{
+        newCzar = req.body.players[indexOfNewCzar];
+    }
+
+    points[indexOfWinner] = points[indexOfWinner] + 1;
+
+    Game.update({gameId: req.body.gameId}, 
+        {$set: { queCard: randomQue[0], numOfAnswers: randomQue[1], czar: newCzar, points: points }},
+        (err) => {
+            if(err){
+                throw err;
+            }
+            return res.json({success: true});
     });
 });
 

@@ -115,6 +115,7 @@ io.on('connection', (socket) => {
     socket.room = data.gameId;
     socket.username = data.username;
     socket.join(data.gameId);
+    io.in(data.gameId).answers = {};
   });
 
   // Emission that would kick every player within the hosted lobby out
@@ -123,22 +124,27 @@ io.on('connection', (socket) => {
     socket.to(data.gameId).emit("Host Left");
   });
 
-  // Emission that would kick every player within the hosted lobby out
+  // Emission that would kick every player within the hosted lobby
   socket.on('User Leaving', (data) => {
-    // TODO: get rid of user from game room
     socket.to(data.gameId).emit("User Left", socket.username);
+    socket.leave(data.gameId);
   });
-
 
   // adds users to the socket room
   socket.on('Game Joined', (data) => {
     socket.room = data.gameId;
     socket.username = data.username;
     socket.join(data.gameId);
+    socket.emit("Update Initial Answers", io.in(data.gameId).answers);
     socket.to(data.gameId).emit("User Joined", data.username);
   });
 
+  socket.on('Get Initial Answers', data => {
+    socket.emit("Update Initial Answers", io.in(data.gameId).answers);
+  });
+
   socket.on("Submitted Answers", (data) => {
+    io.in(data.gameId).answers[data.username] = data.submittedCards;
     io.in(data.gameId).emit("Answer Cards", ({
       user: data.username,
       cards: data.submittedCards
@@ -146,6 +152,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on("Selected Answers", (data) => {
+    io.in(data.gameId).answers = {};
+    socket.emit("Set Up Next Round");
     io.in(data.gameId).emit("Winning Cards", data.winningCards);
   });
 });

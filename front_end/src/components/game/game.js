@@ -4,6 +4,7 @@ import { Button } from '@material-ui/core';
 import './game.css'
 
 class Game extends Component {
+    _isMounted = false;
 
     constructor(props) {
         super(props);
@@ -22,25 +23,36 @@ class Game extends Component {
     }
 
     componentDidMount() {
+        this._isMounted = true;
+
         // sets up the game
         this.retrieveGameData();
         this.retrieveUserCards();
 
+        this.props.socket.emit("Get Initial Answers", (this.props.gameId));
+
         this.props.socket.on("User Joined", (username) => {
-            this.state.players.push(username);
-            this.state.points.push(0);
-            this.setState({
-                players: this.state.players,
-                points: this.state.points
-            });
+            if(!this.state.players.includes(username)){
+                this.state.players.push(username);
+                this.state.points.push(0);
+
+                if(this._isMounted){
+                    this.setState({
+                        players: this.state.players,
+                        points: this.state.points
+                    });
+                }
+            }
         });
 
         // removes players from the lobby
         this.props.socket.on("Host Left", () => {
             this.props.onLeaveGame(false, null);
-            this.setState({
-                redirectTo: "/"
-            });
+            if(this._isMounted){
+                this.setState({
+                    redirectTo: "/"
+                });
+            }
         });
 
         // notifies other players within the lobby that the user left
@@ -48,33 +60,64 @@ class Game extends Component {
             const index = this.state.players.indexOf(username);
             this.state.players.splice(index, 1);
             this.state.points.splice(index, 1);
-
-            this.setState({
-                players: this.state.players,
-                points: this.state.points
-            });
+            if(this._isMounted){
+                this.setState({
+                    players: this.state.players,
+                    points: this.state.points
+                });
+            }
         });
 
         this.props.socket.on("Answer Cards", (data) => {
             const answers = this.state.allAnswers;
             answers[data.user] = data.cards
-            this.setState({
-                allAnswers: answers
-            });
+            if(this._isMounted){
+                this.setState({
+                    allAnswers: answers
+                });
+            }
+        });
+
+        this.props.socket.on("Update Initial Answers", (data) => {
+            const answers = this.state.allAnswers;
+            for(let key in data){
+                answers[key] = data[key];
+            }
+
+            if(this._isMounted){
+                this.setState({
+                    allAnswers: answers
+                });
+            }
+        });
+
+        this.props.socket.on("Set Up Next Round", ()=> {
+            if(this._isMounted){
+                this.setupNewRound();
+            }
         });
 
         this.props.socket.on("Winning Cards", (data) => {
             // highlight cards for a second and then erase
-            this.highlightWinningCards(data);
-            setTimeout(function(){ 
-                this.setState({
-                    allAnswers: {},
-                    selectedAnswers: [],
-                    submittedAnswers: []
-                });
-            }.bind(this), 2000);
+            if(this._isMounted){
+                this.highlightWinningCards(data);
+                this.getAdditionalCards();
+                
+                setTimeout(function(){
+                    this.retrieveGameData();
+                    this.setState({
+                        allAnswers: {}
+                    });
+                }.bind(this), 1000);
+            }
         });
     }
+
+
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
 
     highlightWinningCards = (cards) => {
         const answerCards = document.getElementsByClassName("answerCard");
@@ -83,6 +126,46 @@ class Game extends Component {
                 answerCards[i].style.backgroundColor = "lightblue";
             }
         }
+    }
+
+
+    getAdditionalCards = () => {
+        if(this.state.userCards.length <= 12){
+            fetch("lobby/cards/" + this.state.userCards.length.toString(), {
+                method: "GET",
+                headers: {
+                    "Content-type": "application/json",
+                    Accept: "application/json"
+                }
+            }).then((response) => {
+                response.json().then((body) => {
+                    let newCards = this.state.userCards.concat(body.cards);
+                    this.setState({
+                        userCards: newCards
+                    });
+                });
+            });
+        }
+    }
+
+
+    setupNewRound = () => {
+        let payload = {
+            gameId: this.props.gameId,
+            winner: this.findUsername(),
+            players: this.state.players,
+            points: this.state.points,
+            czar: this.props.username
+        }
+
+        fetch("lobby/newround/", {
+            method: "PUT",
+            headers: {
+                "Content-type": "application/json",
+                Accept: "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
     }
 
     /*
@@ -102,6 +185,8 @@ class Game extends Component {
         }).then((response) => {
             response.json().then((body) => {
                 this.setState({
+                    selectedAnswers: [],
+                    submittedAnswers: [],
                     queCard: body.question,
                     numOfAnswers: body.numOfAnswers,
                     players: body.players,
@@ -241,9 +326,7 @@ class Game extends Component {
     chooseAnswer = () => {
         // Update the database
         // get the username of the winner
-        console.log("HERER");
         const winningUser = this.findUsername();
-        console.log("HERER");
         this.props.socket.emit("Selected Answers", {
             user: winningUser,
             winningCards: this.state.selectedAnswers,
@@ -259,6 +342,7 @@ class Game extends Component {
             }
         }
     }
+
     
     render(){
         if (this.state.redirectTo) {
