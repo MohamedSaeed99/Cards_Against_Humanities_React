@@ -14,7 +14,9 @@
 - [x] Leaving Lobbies
 - [x] Joinging Lobbies
 - [x] Submitting Answers to questions
-- [] Point System
+- [x] Point System
+- [] Search Bar for game searches
+- [] Game stats(e.g num of players) display
 - [] Friend System (Adding and Removing)
 - [] Inviting Friends to Lobby
 - [] Session Handling (Passport)
