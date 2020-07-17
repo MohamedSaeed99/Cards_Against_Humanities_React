@@ -49,7 +49,10 @@ class Nav extends Component{
                         this.props.socket.emit("Host Leaving", {gameId: this.props.gameId});
                     }
                     else {
-                        this.props.socket.emit("User Leaving", {gameId: this.props.gameId});
+                        this.props.socket.emit("User Leaving", {
+                            gameId: this.props.gameId,
+                            updateCzar: body.czarLeft
+                        });
                     }
                     this.props.onLeaveGame(false, null);
                 }

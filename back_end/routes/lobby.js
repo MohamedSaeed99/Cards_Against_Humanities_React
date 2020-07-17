@@ -121,6 +121,8 @@ router.put('/add', (req, res, next) => {
 // removes user from a lobby
 router.put('/leave', (req, res) => {
     if(req.isAuthenticated()){
+        var isCzar = false;
+
         Game.findOne({gameId: req.body.gameId}, (err, result) => {
             if(err) {
                 console.log(err.message);
@@ -135,14 +137,28 @@ router.put('/leave', (req, res) => {
                             throw err;
                         }
                     });
+
+                    let czar = result.czar;
+
+                     // checks if person that left was czar
+                     if(req.body.username === result.czar){
+                        czar = updateCzar(req.body.username, result.players);
+                        isCzar = true;
+                    }
+
                     result.players.splice(result.players.indexOf(req.body.username), 1);
-                    Game.update({gameId: req.body.gameId}, {$set: {players: result.players}}, (err) => {
+                    
+                    Game.update({gameId: req.body.gameId}, {$set: {players: result.players, czar: czar}}, (err) => {
                         if(err) {
                             console.log(err.message);
                             throw err;
                         }
                         else {
-                            return res.json({success: true, host: false});
+                            return res.json({
+                                success: true, 
+                                host: false,
+                                czarLeft: isCzar
+                            });
                         }
                     });
                 }
@@ -189,6 +205,7 @@ router.get('/:num', (req, res) => {
 
 // retrieves the games question card
 router.get("/data/:gameId", (req, res) => {
+    console.log(req.params.gameId)
     Game.findOne({gameId: req.params.gameId}, (err, result) => {
         if(err) {
             console.log(err.message);
@@ -233,17 +250,9 @@ router.get("/cards/:amount", (req, res) => {
 router.put("/newround", (req, res) => {
     let randomQue = randQueCard();
     let points = req.body.points;
-    let indexOfPrevCzar = req.body.players.indexOf(req.body.czar);
-    let indexOfNewCzar = indexOfPrevCzar + 1;
     let indexOfWinner= req.body.players.indexOf(req.body.winner); 
-    let newCzar;
 
-    if(indexOfNewCzar >= req.body.players.length){
-        newCzar = req.body.players[0];
-    }
-    else{
-        newCzar = req.body.players[indexOfNewCzar];
-    }
+    let newCzar = updateCzar(req.body.czar, req.body.players);
 
     points[indexOfWinner] = points[indexOfWinner] + 1;
 
@@ -256,6 +265,18 @@ router.put("/newround", (req, res) => {
             return res.json({success: true});
     });
 });
+
+let updateCzar = (username, players) => {
+    let indexOfPrevCzar = players.indexOf(username);
+    let indexOfNewCzar = indexOfPrevCzar + 1;
+
+    if(indexOfNewCzar >= players.length){
+        return players[0];
+    }
+    else{
+        return players[indexOfNewCzar];
+    }
+}
 
 
 module.exports = router;

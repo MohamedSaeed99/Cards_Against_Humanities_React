@@ -56,8 +56,18 @@ class Game extends Component {
         });
 
         // notifies other players within the lobby that the user left
-        this.props.socket.on("User Left", (username) => {
-            const index = this.state.players.indexOf(username);
+        this.props.socket.on("User Left", (data) => {
+            if(data.updateCzar) {
+                if(this._isMounted){
+                    this.getAdditionalCards();
+                    this.retrieveGameData();
+                    this.setState({
+                        allAnswers: {}
+                    });
+                }
+                console.log("userleft")
+            }
+            const index = this.state.players.indexOf(data.username);
             this.state.players.splice(index, 1);
             this.state.points.splice(index, 1);
             if(this._isMounted){
@@ -100,7 +110,9 @@ class Game extends Component {
         this.props.socket.on("Winning Cards", (data) => {
             // highlight cards for a second and then erase
             if(this._isMounted){
-                this.highlightWinningCards(data);
+
+                this.highlightWinningCards(data.winningCards);
+                this.highlightWinningPlayer(data.winningPlayer);
                 this.getAdditionalCards();
                 
                 setTimeout(function(){
@@ -108,6 +120,7 @@ class Game extends Component {
                     this.setState({
                         allAnswers: {}
                     });
+                    this.unHighlightPlayers();
                 }.bind(this), 1000);
             }
         });
@@ -125,6 +138,24 @@ class Game extends Component {
             if(cards.includes(answerCards[i].innerHTML.substring(3, answerCards[i].innerHTML.indexOf("</p>")))){
                 answerCards[i].style.backgroundColor = "lightblue";
             }
+        }
+    }
+
+
+    highlightWinningPlayer = (winner) => {
+        const players = document.getElementsByClassName("players");
+        for(let i = 0; i < players.length; i++){
+            if((players[i].innerText).includes(winner)){
+                players[i].style.backgroundColor = "lightblue";
+            }
+        }
+    }
+
+
+    unHighlightPlayers = () => {
+        const players = document.getElementsByClassName("players");
+        for(let i = 0; i < players.length; i++){
+            players[i].style.backgroundColor = "lightgray";
         }
     }
 
@@ -337,8 +368,8 @@ class Game extends Component {
 
     findUsername = () => {
         for(var key in this.state.allAnswers){
-            if(this.state.allAnswers[key].every(v => this.state.selectedAnswers.includes(v))){
-                return key
+            if(this.state.allAnswers[key].every(answer => this.state.selectedAnswers.includes(answer))){
+                return key;
             }
         }
     }

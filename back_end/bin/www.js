@@ -126,7 +126,10 @@ io.on('connection', (socket) => {
 
   // Emission that would kick every player within the hosted lobby
   socket.on('User Leaving', (data) => {
-    socket.to(data.gameId).emit("User Left", socket.username);
+    socket.to(data.gameId).emit("User Left", {
+      username: socket.username,
+      updateCzar: data.updateCzar
+    });
     socket.leave(data.gameId);
   });
 
@@ -145,7 +148,13 @@ io.on('connection', (socket) => {
 
   socket.on("Submitted Answers", (data) => {
     io.in(data.gameId).answers[data.username] = data.submittedCards;
-    io.in(data.gameId).emit("Answer Cards", ({
+    
+    // TODO: Figure out a cleaner way to send to all people within a room including sender
+    socket.emit("Answer Cards", ({
+      user: data.username,
+      cards: data.submittedCards
+    }));
+    socket.to(data.gameId).emit("Answer Cards", ({
       user: data.username,
       cards: data.submittedCards
     }));
@@ -154,6 +163,9 @@ io.on('connection', (socket) => {
   socket.on("Selected Answers", (data) => {
     io.in(data.gameId).answers = {};
     socket.emit("Set Up Next Round");
-    io.in(data.gameId).emit("Winning Cards", data.winningCards);
+    io.in(data.gameId).emit("Winning Cards", {
+      winningCards: data.winningCards,
+      winningPlayer: data.user
+    });
   });
 });
