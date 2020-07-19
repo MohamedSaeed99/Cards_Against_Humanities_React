@@ -101,7 +101,8 @@ class Nav extends Component{
                             variant="outlined"
                             onChange={this.onChange}
                             value={this.state.user_input}
-                        /> :
+                        /> 
+                        :
                         <TextField 
                             id="outlined-search" 
                             label="Search" 

@@ -1,5 +1,15 @@
 # Cards_Against_Humanities_React
 
+## About
+This program is a multiplayer web-based Cards Against Humanity(CAH) game.
+Users have the ability to create lobbies and join different lobbies to play a fun game of CAH.
+
+## For Developers
+This is a note for any developers who come accross this.
+
+If you feel the need to add a new feature or change a new feature to this program please feel free to `fork` 
+or make a `pull request`.
+
 ## Running the program
 1. Run `npm install` in `./front_end` and `./back_end` directories.
 2. Create a free MongoDB account and retrieve the uri of the cluster.

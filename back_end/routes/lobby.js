@@ -37,7 +37,10 @@ router.post('/', (req, res, next) => {
             players: [req.body.username],
             queCard: randCard[0],
             numOfAnswers: randCard[1],
-            points: [0]
+            points: [0],
+            password: req.body.password,
+            maxPoints: Number(req.body.maxPoints),
+            maxPlayers: req.body.maxPlayers
         });
 
         game.save( (error) => {

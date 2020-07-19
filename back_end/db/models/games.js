@@ -37,6 +37,21 @@ const gameSchema = new Schema({
         required: true,
         unique: false,
     },
+    password: {
+        type: String,
+        required: false,
+        unique: false,
+    },
+    maxPoints: {
+        type: Number,
+        required: true,
+        unique: false,
+    },
+    maxPlayers: {
+        type: Number,
+        required: true,
+        unique: false,
+    },
 });
 
 
