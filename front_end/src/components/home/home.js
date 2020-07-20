@@ -11,8 +11,12 @@ class Home extends Component {
             redirectTo: null,
             maxPoints: 8,
             password: "",
+            lobbyPassword: "",
             maxPlayers: 4,
             hover: false,
+            doPromptForPass: false,
+            isPassCorr: true,
+            selectedLobby: {},
             lobbies: []
         };
     }
@@ -81,12 +85,27 @@ class Home extends Component {
 
 
     enterGameWhenLoggedIn = (lobby) => {
-        if(!this.props.loggedIn) {
-            this.loginUser();
-        }
-        else{
-            this.addToGame(lobby);
-        }
+
+        this.setState({
+            selectedLobby: lobby
+        }, () => {
+            if(!this.props.loggedIn) {
+                this.loginUser();
+            }
+            else if(lobby.password.length !== 0){
+                this.setState({
+                    doPromptForPass: true
+                });
+            }
+            else{
+                
+                this.setState({
+                    doPromptForPass: false
+                });
+
+                this.addToGame();
+            }
+        });
     }
 
 
@@ -95,10 +114,10 @@ class Home extends Component {
     }
 
 
-    addToGame = (lobby) => {
+    addToGame = () => {
         var payload = {
             username: this.props.username,
-            lobbyId: lobby.gameId
+            lobbyId: this.state.selectedLobby.gameId
         }
         fetch("/lobby/add", {
             method: "PUT",
@@ -114,11 +133,17 @@ class Home extends Component {
                     this.setState({
                         redirectTo: "/game"
                     });
+                }else {
+                    alert(body.message);
                 }
             });
         });
 
-        this.props.socket.emit("Game Joined", {gameId: lobby.gameId, username: this.props.username});
+
+        this.props.socket.emit("Game Joined", {
+            gameId: this.state.selectedLobby.gameId, 
+            username: this.props.username
+        });
     }
 
 
@@ -167,6 +192,74 @@ class Home extends Component {
     }
 
 
+    renderLobbies = () => {
+        const lobbies = this.state.lobbies.map((lobby) => (
+            <div className="lobbyCard" key={lobby.host} onClick={() => this.enterGameWhenLoggedIn(lobby)}> 
+                <h3 className="lobbyTitle">{lobby.host}</h3>
+            </div>
+        ))
+
+        return lobbies;
+    }
+
+
+    doRenderPasswordPrompt = () => {
+        return(
+            <div className="passwordPrompt">
+                <div className="passwordPromptArea">
+
+                    {this.state.isPassCorr ? 
+                    <div></div>
+                    :
+                    <div> 
+                        <p>Password is incorrect.</p>
+                    </div>
+                    }
+
+                    <TextField
+                        className="lobbyPassField"
+                        label="Password" 
+                        type="input"
+                        variant="outlined"
+                        onChange={this.onLobbyPassChange}
+                        value={this.state.lobbyPassword}
+                    />
+                    <div className="modalbtn">
+                        <Button variant="contained" color="primary" className="closebtn" onClick={this.closeModal}>Close</Button>
+                        <Button variant="contained" color="primary" className="passwordbtn" onClick={this.comparePasswords}>Submit</Button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+
+    closeModal = () => {
+        this.setState({
+            doPromptForPass: false
+        });
+    }
+
+
+    comparePasswords = () => {
+        if(this.state.lobbyPassword === this.state.selectedLobby.password){
+            this.addToGame();
+        }
+        else {
+            this.setState({
+                isPassCorr: false
+            });
+        }
+    }
+
+
+    onLobbyPassChange = (event) => {
+        this.setState({
+            lobbyPassword: event.currentTarget.value
+        });
+    }
+
+
     render(){
         if (this.state.redirectTo) {
             return <Redirect to={{ pathname: this.state.redirectTo }} />;
@@ -177,11 +270,8 @@ class Home extends Component {
                     <h1>Cards Against Humanities</h1>
                 </div>
                 <div className="lobbies">
-                    {this.state.lobbies.map((lobby) => (
-                        <div className="lobbyCard" key={lobby.host} onClick={() => this.enterGameWhenLoggedIn(lobby)}> 
-                            <h3 className="lobbyTitle">{lobby.host}</h3>
-                        </div>
-                    ))}
+                    {this.renderLobbies()}
+                    {this.state.doPromptForPass ? this.doRenderPasswordPrompt():<div></div>}
                 </div>
                 <div className="footer">
                     <div className="gameSpecs" onMouseEnter={this.showGameSpecifications} onMouseLeave={this.removeGameSpecifications}>

@@ -81,7 +81,7 @@ router.put('/add', (req, res, next) => {
         User.update({username: req.body.username}, {$set: {gameId: req.body.lobbyId, currCards: ansCards}}, (err) => {
             if(err){
                 console.log(err.message);
-                return res.json({success: false, message: err.message});
+                throw err;
             }
             else{
                 // updates the game of the new user that joined
@@ -91,26 +91,35 @@ router.put('/add', (req, res, next) => {
                     }
                     else{
                         // Prevents the addition of duplicate username to player list and point list
-                        if(result.players.includes(req.body.username)){
-                            return res.json({
-                                success: true,
-                                gameId: req.body.lobbyId
-                            });
+                        if(result && result.players.length + 1 <= result.maxPlayers){
+                            if(result.players.includes(req.body.username)){
+                                return res.json({
+                                    success: true,
+                                    gameId: req.body.lobbyId
+                                });
+                            }
+                            else{
+                                Game.update({gameId: req.body.lobbyId}, 
+                                    
+                                    {$addToSet: {players: req.body.username},
+                                    $push: {points: 0}}, (err) => {
+                                        if(err){
+                                            console.log(err.message);
+                                            return res.json({success: false, message: err.message});
+                                        }
+                                        else{
+                                            return res.json({
+                                                success: true, 
+                                                gameId: req.body.lobbyId,
+                                            });
+                                        }
+                                });
+                            }
                         }
                         else{
-                            Game.update({gameId: req.body.lobbyId}, 
-                                {$addToSet: {players: req.body.username},
-                                $push: {points: 0}}, (err) => {
-                                    if(err){
-                                        console.log(err.message);
-                                        return res.json({success: false, message: err.message});
-                                    }
-                                    else{
-                                        return res.json({
-                                            success: true, 
-                                            gameId: req.body.lobbyId,
-                                        });
-                                    }
+                            return res.json({
+                                success: false, 
+                                message: "Lobby Full.",
                             });
                         }
                     }
@@ -149,9 +158,11 @@ router.put('/leave', (req, res) => {
                         isCzar = true;
                     }
 
-                    result.players.splice(result.players.indexOf(req.body.username), 1);
+                    let indexOfPlayer = result.players.indexOf(req.body.username);
+                    result.players.splice(indexOfPlayer, 1);
+                    result.points.splice(indexOfPlayer, 1);
                     
-                    Game.update({gameId: req.body.gameId}, {$set: {players: result.players, czar: czar}}, (err) => {
+                    Game.update({gameId: req.body.gameId}, {$set: {players: result.players, czar: czar, points: result.points}}, (err) => {
                         if(err) {
                             console.log(err.message);
                             throw err;
@@ -200,7 +211,19 @@ router.get('/:num', (req, res) => {
             throw err;
         }
         else if(response) {
-            return res.send(response);
+            var extractData = [];
+            console.log(response);
+            for(let i = 0; i < response.length; i++){
+                let data = {
+                    numOfPlayers: response[i].players.length,
+                    gameId: response[i].gameId,
+                    password: response[i].password,
+                    maxPlayers: response[i].maxPlayers,
+                    host: response[i].host
+                };
+                extractData.push(data);
+            }
+            return res.send(extractData);
         }
     });
 });

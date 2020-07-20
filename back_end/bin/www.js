@@ -126,6 +126,9 @@ io.on('connection', (socket) => {
 
   // Emission that would kick every player within the hosted lobby
   socket.on('User Leaving', (data) => {
+    if(data.updateCzar){
+      io.in(data.gameId).answers = {};
+    }
     socket.to(data.gameId).emit("User Left", {
       username: socket.username,
       updateCzar: data.updateCzar

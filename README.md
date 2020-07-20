@@ -25,6 +25,8 @@ or make a `pull request`.
 - [x] Joinging Lobbies
 - [x] Submitting Answers to questions
 - [x] Point System
+- [x] Player limit
+- [x] Password portected lobbies
 - [] Search Bar for game searches
 - [] Game stats(e.g num of players) display
 - [] Friend System (Adding and Removing)
