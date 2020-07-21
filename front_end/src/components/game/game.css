@@ -86,6 +86,22 @@ body{
     overflow-x: auto;
 }
 
+.cover{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    height: 60%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+}
+
+.notifier{
+    font-size: 50px;
+    color: white
+}
+
 .groupAnswer {
     display:flex;
     flex-direction: row;
@@ -111,4 +127,20 @@ body{
 /* hides scroll bar */
 .playerCards::-webkit-scrollbar, .answerCards::-webkit-scrollbar {
     display: none;
+}
+
+.displayWinner {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0, 0.5);
+}
+
+.winner{
+    font-size: 50px;
+    color: white;
+    z-index: 3;
 }

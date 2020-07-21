@@ -231,7 +231,6 @@ router.get('/:num', (req, res) => {
 
 // retrieves the games question card
 router.get("/data/:gameId", (req, res) => {
-    console.log(req.params.gameId)
     Game.findOne({gameId: req.params.gameId}, (err, result) => {
         if(err) {
             console.log(err.message);
@@ -273,22 +272,43 @@ router.get("/cards/:amount", (req, res) => {
 });
 
 
+// After every round checks if there is a winner
 router.put("/newround", (req, res) => {
-    let randomQue = randQueCard();
-    let points = req.body.points;
-    let indexOfWinner= req.body.players.indexOf(req.body.winner); 
+    Game.findOne({gameId: req.body.gameId}, (err, result)=> {
+        if(err) {
+            throw err;
+        }
 
-    let newCzar = updateCzar(req.body.czar, req.body.players);
+        let points = result.points;
+        let indexOfWinner= result.players.indexOf(req.body.winner);
+        points[indexOfWinner] = points[indexOfWinner] + 1; 
+        
+        if(points[indexOfWinner] === result.maxPoints){
+            console.log("Winner found")
+            Game.update({gameId: req.body.gameId}, 
+                {$set: { points: points }},(err) => {
+                if (err) {
+                    throw err;
+                }
+                return res.json({
+                    gameOver: true,
+                    winner: req.body.winner
+                });
+            });
+        }
+        else {
+            let randomQue = randQueCard();
+            let newCzar = updateCzar(result.czar, result.players);
 
-    points[indexOfWinner] = points[indexOfWinner] + 1;
-
-    Game.update({gameId: req.body.gameId}, 
-        {$set: { queCard: randomQue[0], numOfAnswers: randomQue[1], czar: newCzar, points: points }},
-        (err) => {
-            if(err){
-                throw err;
-            }
-            return res.json({success: true});
+            Game.update({gameId: req.body.gameId}, 
+                {$set: { queCard: randomQue[0], numOfAnswers: randomQue[1], czar: newCzar, points: points }},
+                (err) => {
+                    if(err){
+                        throw err;
+                    }
+                    return res.json({gameOver: false, success: true});
+            });
+        }
     });
 });
 

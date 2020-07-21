@@ -116,6 +116,7 @@ io.on('connection', (socket) => {
     socket.username = data.username;
     socket.join(data.gameId);
     io.in(data.gameId).answers = {};
+    io.in(data.gameId).winner = null;
   });
 
   // Emission that would kick every player within the hosted lobby out
@@ -141,6 +142,10 @@ io.on('connection', (socket) => {
     socket.room = data.gameId;
     socket.username = data.username;
     socket.join(data.gameId);
+
+    socket.emit("Winner Found", {
+      winner: io.in(data.gameId).winner
+    });
     socket.emit("Update Initial Answers", io.in(data.gameId).answers);
     socket.to(data.gameId).emit("User Joined", data.username);
   });
@@ -169,6 +174,14 @@ io.on('connection', (socket) => {
     io.in(data.gameId).emit("Winning Cards", {
       winningCards: data.winningCards,
       winningPlayer: data.user
+    });
+  });
+
+  socket.on("Player Won", (data) => {
+    io.in(data.gameId).answers = {};
+    io.in(data.gameId).winner = data.winner;
+    io.in(data.gameId).emit("Winner Found", {
+      winner: data.winner
     });
   });
 });

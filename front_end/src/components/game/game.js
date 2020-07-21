@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { Redirect } from "react-router-dom";
 import { Button } from '@material-ui/core';
+import Confetti from 'react-confetti'
 import './game.css'
 
 class Game extends Component {
@@ -9,6 +10,7 @@ class Game extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            winner: null,
             points: [],
             czar: false,
             players: [],
@@ -65,7 +67,6 @@ class Game extends Component {
                         allAnswers: {}
                     });
                 }
-                console.log("userleft")
             }
             const index = this.state.players.indexOf(data.username);
             this.state.players.splice(index, 1);
@@ -122,6 +123,17 @@ class Game extends Component {
                     });
                     this.unHighlightPlayers();
                 }.bind(this), 1000);
+            }
+        });
+
+        this.props.socket.on("Winner Found", (data) => {
+            console.log("Winner was alredy found");
+            if(this._isMounted){
+                this.setState({
+                    winner: data.winner,
+                }, ()=>{
+                    console.log("winner updated", this.state.winner);
+                });
             }
         });
     }
@@ -184,9 +196,6 @@ class Game extends Component {
         let payload = {
             gameId: this.props.gameId,
             winner: this.findUsername(),
-            players: this.state.players,
-            points: this.state.points,
-            czar: this.props.username
         }
 
         fetch("lobby/newround/", {
@@ -196,6 +205,17 @@ class Game extends Component {
                 Accept: "application/json"
             },
             body: JSON.stringify(payload)
+        }).then((response) => {
+            response.json().then((body) => {
+                console.log("Here1")
+                if(body.gameOver){
+                    console.log("Here2")
+                    this.props.socket.emit("Player Won", {
+                        winner: body.winner,
+                        gameId: this.props.gameId
+                    });
+                }
+            });
         });
     }
 
@@ -207,6 +227,7 @@ class Game extends Component {
             Points
     */
     retrieveGameData = () => {
+        console.log(this.props.gameId);
         fetch("lobby/data/" + this.props.gameId, {
             method: "GET",
             header: {
@@ -222,7 +243,7 @@ class Game extends Component {
                     numOfAnswers: body.numOfAnswers,
                     players: body.players,
                     points: body.points,
-                    czar: body.czar === this.props.username
+                    czar: this.state.winner === null ? body.czar === this.props.username : false
                 });
             });
         });
@@ -248,7 +269,7 @@ class Game extends Component {
 
     
     submitUserAnswer = (event) => {
-        if(this.state.numOfAnswers > 0 /*&& !this.state.czar*/){
+        if(this.state.numOfAnswers > 0 && !this.state.czar){
             const htmlText = event.currentTarget.innerHTML;
             const cardText = htmlText.substring(3, htmlText.indexOf("</p>"));
 
@@ -355,8 +376,6 @@ class Game extends Component {
 
 
     chooseAnswer = () => {
-        // Update the database
-        // get the username of the winner
         const winningUser = this.findUsername();
         this.props.socket.emit("Selected Answers", {
             user: winningUser,
@@ -374,36 +393,67 @@ class Game extends Component {
         }
     }
 
+
+    coverCardWhenCzar = () => {
+        if(this.state.czar){
+            return(<div className="cover">
+                <p className="notifier"> YOU ARE CZAR </p>
+            </div>);
+        }
+    }
+
+
+    displayWinner = () => {
+        console.log("Renderuing");
+        const { innerWidth: width, innerHeight: height } = window;
+        if(this.state.winner){
+            return(
+            <div>
+                <Confetti
+                    width={width}
+                    height={height}
+                />
+                <div className="displayWinner">
+                    <p className="winner">{this.state.winner} Won The Game</p>
+                </div>
+                </div>)
+        }
+    }
+
     
     render(){
         if (this.state.redirectTo) {
             return <Redirect to={{ pathname: this.state.redirectTo }} />;
         }
         return(
-            <div className="game">
-                <div className="top">
-                    <div className="questionCardArea">
-                        <div className="queCard">
-                            <p dangerouslySetInnerHTML={{__html: this.state.queCard}}/>
-                        </div>
-                        <div className="submitArea">
-                            {this.state.czar ? 
-                                <Button variant="outlined" className="submitBtn" onClick={this.chooseAnswer}>Submit</Button> 
-                                :
-                                <Button variant="outlined" className="submitBtn" disabled>Submit</Button> }
+            <div>
+                {this.displayWinner()}
+                <div className="game">
+                    <div className="top">
+                        <div className="questionCardArea">
+                            <div className="queCard">
+                                <p dangerouslySetInnerHTML={{__html: this.state.queCard}}/>
+                            </div>
+                            <div className="submitArea">
+                                {this.state.czar ? 
+                                    <Button variant="outlined" className="submitBtn" onClick={this.chooseAnswer}>Submit</Button> 
+                                    :
+                                    <Button variant="outlined" className="submitBtn" disabled>Submit</Button> }
 
+                            </div>
+                        </div>
+                        <div className="answerCards">
+                            {this.renderAnswers()}
                         </div>
                     </div>
-                    <div className="answerCards">
-                        {this.renderAnswers()}
-                    </div>
-                </div>
-                <div className="bottom">
-                    <div className="gameStats">
-                        {this.renderUsernames()}
-                    </div>
-                    <div className="playerCards">
-                        {this.renderUserCards()}
+                    <div className="bottom">
+                        <div className="gameStats">
+                            {this.renderUsernames()}
+                        </div>
+                        <div className="playerCards">
+                            {this.coverCardWhenCzar()}
+                            {this.renderUserCards()}
+                        </div>
                     </div>
                 </div>
             </div>
