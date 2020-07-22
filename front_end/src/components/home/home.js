@@ -133,16 +133,14 @@ class Home extends Component {
                     this.setState({
                         redirectTo: "/game"
                     });
+                    this.props.socket.emit("Game Joined", {
+                        gameId: this.state.selectedLobby.gameId, 
+                        username: this.props.username
+                    });
                 }else {
                     alert(body.message);
                 }
             });
-        });
-
-
-        this.props.socket.emit("Game Joined", {
-            gameId: this.state.selectedLobby.gameId, 
-            username: this.props.username
         });
     }
 

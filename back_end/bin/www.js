@@ -142,10 +142,6 @@ io.on('connection', (socket) => {
     socket.room = data.gameId;
     socket.username = data.username;
     socket.join(data.gameId);
-
-    socket.emit("Winner Found", {
-      winner: io.in(data.gameId).winner
-    });
     socket.emit("Update Initial Answers", io.in(data.gameId).answers);
     socket.to(data.gameId).emit("User Joined", data.username);
   });
@@ -182,6 +178,12 @@ io.on('connection', (socket) => {
     io.in(data.gameId).winner = data.winner;
     io.in(data.gameId).emit("Winner Found", {
       winner: data.winner
+    });
+  });
+
+  socket.on("Check For Winner", (gameId) => {
+    socket.emit("Winner Found", {
+      winner: io.in(gameId).winner
     });
   });
 });

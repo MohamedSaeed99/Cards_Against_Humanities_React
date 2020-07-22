@@ -78,52 +78,56 @@ router.put('/add', (req, res, next) => {
         const ansCards = randAnsCards();
 
         // updates the user of the gameid they joined
-        User.update({username: req.body.username}, {$set: {gameId: req.body.lobbyId, currCards: ansCards}}, (err) => {
-            if(err){
-                console.log(err.message);
+        Game.findOne({gameId: req.body.lobbyId},  (err, result) => {
+            if(err) {
                 throw err;
             }
             else{
-                // updates the game of the new user that joined
-                Game.findOne({gameId: req.body.lobbyId},  (err, result) => {
-                    if(err) {
-                        throw err;
-                    }
-                    else{
-                        // Prevents the addition of duplicate username to player list and point list
-                        if(result && result.players.length + 1 <= result.maxPlayers){
-                            if(result.players.includes(req.body.username)){
-                                return res.json({
-                                    success: true,
-                                    gameId: req.body.lobbyId
-                                });
-                            }
-                            else{
-                                Game.update({gameId: req.body.lobbyId}, 
-                                    
-                                    {$addToSet: {players: req.body.username},
-                                    $push: {points: 0}}, (err) => {
-                                        if(err){
-                                            console.log(err.message);
-                                            return res.json({success: false, message: err.message});
-                                        }
-                                        else{
-                                            return res.json({
-                                                success: true, 
-                                                gameId: req.body.lobbyId,
-                                            });
-                                        }
-                                });
-                            }
+                if(result) {
+                    // Prevents the addition of duplicate username to player list and point list
+                    if(result.players.length + 1 <= result.maxPlayers){
+                        if(result.players.includes(req.body.username)){
+                            return res.json({
+                                success: true,
+                                gameId: req.body.lobbyId
+                            });
                         }
                         else{
-                            return res.json({
-                                success: false, 
-                                message: "Lobby Full.",
+                            User.update({username: req.body.username}, {$set: {gameId: req.body.lobbyId, currCards: ansCards}}, (err) => {
+                                if(err){
+                                    console.log(err.message);
+                                    throw err;
+                                }
+                            });
+                            Game.update({gameId: req.body.lobbyId}, 
+                                {$addToSet: {players: req.body.username},
+                                $push: {points: 0}}, (err) => {
+                                    if(err){
+                                        console.log(err.message);
+                                        return res.json({success: false, message: err.message});
+                                    }
+                                    else{
+                                        return res.json({
+                                            success: true, 
+                                            gameId: req.body.lobbyId,
+                                        });
+                                    }
                             });
                         }
                     }
-                });
+                    else{
+                        return res.json({
+                            success: false, 
+                            message: "Lobby Full."
+                        });
+                    }
+                }
+                else{
+                    return res.json({
+                        success: false,
+                        message: "Lobby Doesn't Exist Anymore."
+                    });
+                }
             }
         });
     }

@@ -32,6 +32,7 @@ class Game extends Component {
         this.retrieveUserCards();
 
         this.props.socket.emit("Get Initial Answers", (this.props.gameId));
+        this.props.socket.emit("Check For Winner", (this.props.gameId));
 
         this.props.socket.on("User Joined", (username) => {
             if(!this.state.players.includes(username)){
@@ -127,12 +128,10 @@ class Game extends Component {
         });
 
         this.props.socket.on("Winner Found", (data) => {
-            console.log("Winner was alredy found");
             if(this._isMounted){
                 this.setState({
                     winner: data.winner,
-                }, ()=>{
-                    console.log("winner updated", this.state.winner);
+                    czar: false
                 });
             }
         });
@@ -207,9 +206,7 @@ class Game extends Component {
             body: JSON.stringify(payload)
         }).then((response) => {
             response.json().then((body) => {
-                console.log("Here1")
                 if(body.gameOver){
-                    console.log("Here2")
                     this.props.socket.emit("Player Won", {
                         winner: body.winner,
                         gameId: this.props.gameId
@@ -227,7 +224,6 @@ class Game extends Component {
             Points
     */
     retrieveGameData = () => {
-        console.log(this.props.gameId);
         fetch("lobby/data/" + this.props.gameId, {
             method: "GET",
             header: {
@@ -404,7 +400,6 @@ class Game extends Component {
 
 
     displayWinner = () => {
-        console.log("Renderuing");
         const { innerWidth: width, innerHeight: height } = window;
         if(this.state.winner){
             return(
