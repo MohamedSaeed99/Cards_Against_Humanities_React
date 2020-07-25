@@ -50,7 +50,7 @@ router.post('/', (req, res, next) => {
             else{
                 const ansCards = randAnsCards();
                 // updates the host with the gameid they created
-                User.update({username: req.body.username}, {$set: {gameId: game.gameId, currCards: ansCards}}, (err) => {
+                User.updateOne({username: req.body.username}, {$set: {gameId: game.gameId, currCards: ansCards}}, (err) => {
                     if(err){
                         console.log(err.message);
                         throw err;
@@ -93,13 +93,13 @@ router.put('/add', (req, res, next) => {
                             });
                         }
                         else{
-                            User.update({username: req.body.username}, {$set: {gameId: req.body.lobbyId, currCards: ansCards}}, (err) => {
+                            User.updateOne({username: req.body.username}, {$set: {gameId: req.body.lobbyId, currCards: ansCards}}, (err) => {
                                 if(err){
                                     console.log(err.message);
                                     throw err;
                                 }
                             });
-                            Game.update({gameId: req.body.lobbyId}, 
+                            Game.updateOne({gameId: req.body.lobbyId}, 
                                 {$addToSet: {players: req.body.username},
                                 $push: {points: 0}}, (err) => {
                                     if(err){
@@ -147,7 +147,7 @@ router.put('/leave', (req, res) => {
             else {
                 // removes the player from the list of players currently in the lobby
                 if(req.body.username != result.host){
-                    User.update({username: req.body.username}, {$set: {gameId: null}}, (err) => {
+                    User.updateOne({username: req.body.username}, {$set: {gameId: null}}, (err) => {
                         if(err){
                             console.log(err.message);
                             throw err;
@@ -166,7 +166,7 @@ router.put('/leave', (req, res) => {
                     result.players.splice(indexOfPlayer, 1);
                     result.points.splice(indexOfPlayer, 1);
                     
-                    Game.update({gameId: req.body.gameId}, {$set: {players: result.players, czar: czar, points: result.points}}, (err) => {
+                    Game.updateOne({gameId: req.body.gameId}, {$set: {players: result.players, czar: czar, points: result.points}}, (err) => {
                         if(err) {
                             console.log(err.message);
                             throw err;
@@ -183,7 +183,7 @@ router.put('/leave', (req, res) => {
                 // deletes the game created by the host
                 else {
                     result.players.forEach(player => {
-                        User.update({username: player}, {$set: {gameId: null}}, (err) => {
+                        User.updateOne({username: player}, {$set: {gameId: null}}, (err) => {
                             if(err){
                                 console.log(err.message);
                                 throw err;
@@ -208,7 +208,8 @@ router.put('/leave', (req, res) => {
 
 
 // get 'num' number of lobbies
-router.get('/:num', (req, res) => {
+router.get('/random/:num', (req, res) => {
+    console.log("HERE2")
     Game.aggregate([{$sample: {size: Number(req.params.num)}}], (err, response) => {
         if(err) {
             console.log(err.message);
@@ -216,7 +217,6 @@ router.get('/:num', (req, res) => {
         }
         else if(response) {
             var extractData = [];
-            console.log(response);
             for(let i = 0; i < response.length; i++){
                 let data = {
                     numOfPlayers: response[i].players.length,
@@ -230,6 +230,46 @@ router.get('/:num', (req, res) => {
             return res.send(extractData);
         }
     });
+});
+
+
+router.get('/user/:host', (req, res) => {
+    console.log("HERE1")
+    Game.findOne({host: req.params.host}, (err, response) => {
+        if(err) {
+            throw err;
+        }
+        else {
+            if(response) {
+                return res.send([{
+                        numOfPlayers: response.players.length,
+                        gameId: response.gameId,
+                        password: response.password,
+                        maxPlayers: response.maxPlayers,
+                        host: response.host
+                    }]
+                );
+            }
+            else {
+                let emptyData = [];
+                return res.send(emptyData);
+            }
+        }
+    })
+});
+
+
+router.get('/users/host', (req, res) => {
+    Game.distinct("host", (err, response) => {
+        if(err) {
+            throw err;
+        }
+        else {
+            return res.json({
+                hosts: response
+            });
+        }
+    })
 });
 
 
@@ -288,8 +328,7 @@ router.put("/newround", (req, res) => {
         points[indexOfWinner] = points[indexOfWinner] + 1; 
         
         if(points[indexOfWinner] === result.maxPoints){
-            console.log("Winner found")
-            Game.update({gameId: req.body.gameId}, 
+            Game.updateOne({gameId: req.body.gameId}, 
                 {$set: { points: points }},(err) => {
                 if (err) {
                     throw err;
@@ -304,7 +343,7 @@ router.put("/newround", (req, res) => {
             let randomQue = randQueCard();
             let newCzar = updateCzar(result.czar, result.players);
 
-            Game.update({gameId: req.body.gameId}, 
+            Game.updateOne({gameId: req.body.gameId}, 
                 {$set: { queCard: randomQue[0], numOfAnswers: randomQue[1], czar: newCzar, points: points }},
                 (err) => {
                     if(err){

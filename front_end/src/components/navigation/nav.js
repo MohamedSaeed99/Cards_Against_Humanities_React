@@ -1,17 +1,21 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import './nav.css'; 
-import { Button, TextField } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 
 class Nav extends Component{
     constructor(props){
         super(props);
         this.state = {
+            activeSuggestion: 0,
+            filteredSuggestions: [],
+            showSuggestions: false,
+            hosts: [],
             user_input: "",
         };
     }
 
-    // Logs user out
+
     logout = () => {
         // make post to let server know u logged out
         this.props.onLogoutChange(false, null);
@@ -22,11 +26,6 @@ class Nav extends Component{
         });
     }
 
-
-    // Stores the value of the user input
-    onChange = (event) => {
-        this.setState({ user_input: event.currentTarget.value });
-    }
 
     // sets the state of the application when user leaves
     leaveGame = () => {
@@ -60,7 +59,7 @@ class Nav extends Component{
         });
     }
 
-    // Lists the options available for user at the navbar
+
     userOptions = () => {
         if(this.props.joinedGame){
             return <div className="loggedIn">
@@ -85,33 +84,13 @@ class Nav extends Component{
             }
         }
     }
-    
+
 
     render(){
         return(
             <div className='navigationBar'>
-                <div className='searchBar'>
-                    {/* Material component textfield for user input */}
-                    {this.props.joinedGame ?
-                        <TextField 
-                            disabled
-                            id="outlined-search" 
-                            label="Search" 
-                            type="search"
-                            variant="outlined"
-                            onChange={this.onChange}
-                            value={this.state.user_input}
-                        /> 
-                        :
-                        <TextField 
-                            id="outlined-search" 
-                            label="Search" 
-                            type="search"
-                            variant="outlined"
-                            onChange={this.onChange}
-                            value={this.state.user_input}
-                        /> 
-                    }
+                <div className='title'>
+                    <p><strong>Cards Against Humanity</strong></p>
                 </div>
                 <div>
                     {/* Checks if user is logged in or not */}

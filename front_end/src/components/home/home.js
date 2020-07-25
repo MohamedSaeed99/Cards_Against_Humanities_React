@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, TextField } from '@material-ui/core';
 import { Redirect } from "react-router-dom";
+import Search from "./searchBar/search"
 import "./home.css";
 
 
@@ -17,19 +18,19 @@ class Home extends Component {
             doPromptForPass: false,
             isPassCorr: true,
             selectedLobby: {},
-            lobbies: []
+            lobbies: [],
+            user_input: null
         };
     }
 
 
     componentDidMount() {
-        this.retrieveLobbies();
+        this.retrieveRandomLobbies();
     }
 
 
-    // gets a maxiumum of 10 lobbies
-    retrieveLobbies = () => {
-        fetch('/lobby/10', {
+    retrieveRandomLobbies = () => {
+        fetch('/lobby/random/10', {
             method: "GET",
             headers: {
                 "Content-type": "application/json",
@@ -85,7 +86,6 @@ class Home extends Component {
 
 
     enterGameWhenLoggedIn = (lobby) => {
-
         this.setState({
             selectedLobby: lobby
         }, () => {
@@ -258,14 +258,43 @@ class Home extends Component {
     }
 
 
+    onUserInputChange = (user) => {
+        this.setState({
+            user_input: user
+        }, () => {
+            this.retrieveLobbiesBasedUser();
+        });
+    }
+
+
+    retrieveLobbiesBasedUser = () => {
+        fetch('/lobby/user/' + this.state.user_input, {
+            method: "GET",
+            headers: {
+                "Content-type": "application/json",
+                Accept: "application/json"
+            }
+        }).then((response) => {
+            response.json().then((body) => {
+                this.setState({
+                    lobbies: body
+                });
+            });
+        });
+    }
+
+
     render(){
         if (this.state.redirectTo) {
             return <Redirect to={{ pathname: this.state.redirectTo }} />;
         }
         return(
             <div>
-                <div className="siteTitle">
-                    <h1>Cards Against Humanities</h1>
+                <div className="searchBar">
+                    <Search 
+                        retrieveUserInput={this.onUserInputChange}
+                    >
+                    </Search>
                 </div>
                 <div className="lobbies">
                     {this.renderLobbies()}

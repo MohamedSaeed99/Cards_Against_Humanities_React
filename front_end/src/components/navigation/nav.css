@@ -17,10 +17,6 @@ body{
     margin-right: 10px !important;
 }
 
-.searchBar{
-    padding: 0 5px 0 15px
-}
-
 .displayUser {
     font-family: "Roboto", "Helvetica", "Arial", serif;
     font-size: 0.875rem;
@@ -30,13 +26,12 @@ body{
     padding-right:10px;
 }
 
-#outlined-search{
-    width: 30vw;
-    height: 5px;
-}
-
 .loggedIn, .loggedOut{
     margin-right: 10px;
     display: flex;
     flex-direction: row;
+}
+
+.title {
+    font-size: 30px;
 }

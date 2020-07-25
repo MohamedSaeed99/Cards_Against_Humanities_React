@@ -16,11 +16,13 @@ class App extends Component {
     this.state = {
       loggedIn: false,
       inGame: false,
+      lobbyForUser: null,
       username: null,
       game: null,
       socket: openSocket('http://localhost:' + (process.env.PORT || 3001)),
     }
   }
+
 
   onChange = (status, username) => {
     this.setState({
@@ -29,6 +31,7 @@ class App extends Component {
     });
   } 
 
+
   joinedGame = (joined, gameId) => {
     this.setState({
       inGame: joined,
@@ -36,10 +39,12 @@ class App extends Component {
     });
   } 
 
+  
   render() {
     return (
       <div style={{height: 0, margin:0, padding:0}}>
         <Nav 
+          retrieveLobby={this.retrieveLobby}
           onLogoutChange={this.onChange} 
           onLeaveGame={this.joinedGame} 
           joinedGame={this.state.inGame} 

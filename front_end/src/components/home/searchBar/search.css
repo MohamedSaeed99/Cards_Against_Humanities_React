@@ -1,0 +1,30 @@
+#outlined-search{
+    width: 400px;
+    height: 5px;
+}
+
+.suggestions {
+    width: 427px;
+    border-radius: 5px;
+    box-shadow: 0 2px rgba(0, 0, 0, 0.1);
+    border: 1px solid lightgray;
+    border-top-width: 0;
+    list-style: none;
+    margin-top: 0;
+    max-height: 143px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-left: 0;
+    z-index: 2;
+}
+
+.suggestions li {
+    color: black;
+    padding: 0.5rem;
+}
+
+.suggestions li:hover {
+    background-color: lightgray;
+    cursor: pointer;
+    font-weight: 700;
+}
