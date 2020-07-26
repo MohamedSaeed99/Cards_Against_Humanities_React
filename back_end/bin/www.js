@@ -151,17 +151,22 @@ io.on('connection', (socket) => {
   });
 
   socket.on("Submitted Answers", (data) => {
-    io.in(data.gameId).answers[data.username] = data.submittedCards;
-    
-    // TODO: Figure out a cleaner way to send to all people within a room including sender
-    socket.emit("Answer Cards", ({
-      user: data.username,
-      cards: data.submittedCards
-    }));
-    socket.to(data.gameId).emit("Answer Cards", ({
-      user: data.username,
-      cards: data.submittedCards
-    }));
+    try{
+      io.in(data.gameId).answers[data.username] = data.submittedCards;
+      
+      // TODO: Figure out a cleaner way to send to all people within a room including sender
+      socket.emit("Answer Cards", ({
+        user: data.username,
+        cards: data.submittedCards
+      }));
+      socket.to(data.gameId).emit("Answer Cards", ({
+        user: data.username,
+        cards: data.submittedCards
+      }));
+    }catch(e){
+      // have a popup or an alert notifying users
+      console.error(e);
+    }
   });
 
   socket.on("Selected Answers", (data) => {

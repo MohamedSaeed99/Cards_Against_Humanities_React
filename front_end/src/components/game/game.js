@@ -28,113 +28,115 @@ class Game extends Component {
         this._isMounted = true;
 
         // sets up the game
-        this.retrieveGameData();
-        this.retrieveUserCards();
+        if(this.props.gameId){
+            this.retrieveGameData();
+            this.retrieveUserCards();
 
-        this.props.socket.emit("Get Initial Answers", (this.props.gameId));
-        this.props.socket.emit("Check For Winner", (this.props.gameId));
+            this.props.socket.emit("Get Initial Answers", (this.props.gameId));
+            this.props.socket.emit("Check For Winner", (this.props.gameId));
 
-        this.props.socket.on("User Joined", (username) => {
-            if(!this.state.players.includes(username)){
-                this.state.players.push(username);
-                this.state.points.push(0);
+            this.props.socket.on("User Joined", (username) => {
+                if(!this.state.players.includes(username)){
+                    this.state.players.push(username);
+                    this.state.points.push(0);
 
+                    if(this._isMounted){
+                        this.setState({
+                            players: this.state.players,
+                            points: this.state.points
+                        });
+                    }
+                }
+            });
+
+            // removes players from the lobby
+            this.props.socket.on("Host Left", () => {
+                this.props.onLeaveGame(false, null);
+                if(this._isMounted){
+                    this.setState({
+                        redirectTo: "/"
+                    });
+                }
+            });
+
+            // notifies other players within the lobby that the user left
+            this.props.socket.on("User Left", (data) => {
+                if(data.updateCzar) {
+                    if(this._isMounted){
+                        this.getAdditionalCards();
+                        this.retrieveGameData();
+                        this.setState({
+                            allAnswers: {}
+                        });
+                    }
+                }
+                const index = this.state.players.indexOf(data.username);
+                this.state.players.splice(index, 1);
+                this.state.points.splice(index, 1);
                 if(this._isMounted){
                     this.setState({
                         players: this.state.players,
                         points: this.state.points
                     });
                 }
-            }
-        });
+            });
 
-        // removes players from the lobby
-        this.props.socket.on("Host Left", () => {
-            this.props.onLeaveGame(false, null);
-            if(this._isMounted){
-                this.setState({
-                    redirectTo: "/"
-                });
-            }
-        });
-
-        // notifies other players within the lobby that the user left
-        this.props.socket.on("User Left", (data) => {
-            if(data.updateCzar) {
+            this.props.socket.on("Answer Cards", (data) => {
+                const answers = this.state.allAnswers;
+                answers[data.user] = data.cards
                 if(this._isMounted){
-                    this.getAdditionalCards();
-                    this.retrieveGameData();
                     this.setState({
-                        allAnswers: {}
+                        allAnswers: answers
                     });
                 }
-            }
-            const index = this.state.players.indexOf(data.username);
-            this.state.players.splice(index, 1);
-            this.state.points.splice(index, 1);
-            if(this._isMounted){
-                this.setState({
-                    players: this.state.players,
-                    points: this.state.points
-                });
-            }
-        });
+            });
 
-        this.props.socket.on("Answer Cards", (data) => {
-            const answers = this.state.allAnswers;
-            answers[data.user] = data.cards
-            if(this._isMounted){
-                this.setState({
-                    allAnswers: answers
-                });
-            }
-        });
+            this.props.socket.on("Update Initial Answers", (data) => {
+                const answers = this.state.allAnswers;
+                for(let key in data){
+                    answers[key] = data[key];
+                }
 
-        this.props.socket.on("Update Initial Answers", (data) => {
-            const answers = this.state.allAnswers;
-            for(let key in data){
-                answers[key] = data[key];
-            }
-
-            if(this._isMounted){
-                this.setState({
-                    allAnswers: answers
-                });
-            }
-        });
-
-        this.props.socket.on("Set Up Next Round", ()=> {
-            if(this._isMounted){
-                this.setupNewRound();
-            }
-        });
-
-        this.props.socket.on("Winning Cards", (data) => {
-            // highlight cards for a second and then erase
-            if(this._isMounted){
-
-                this.highlightWinningCards(data.winningCards);
-                this.highlightWinningPlayer(data.winningPlayer);
-                this.getAdditionalCards();
-                
-                setTimeout(function(){
-                    this.retrieveGameData();
+                if(this._isMounted){
                     this.setState({
-                        allAnswers: {}
+                        allAnswers: answers
                     });
-                    this.unHighlightPlayers();
-                }.bind(this), 1000);
-            }
-        });
+                }
+            });
 
-        this.props.socket.on("Winner Found", (data) => {
-            if(this._isMounted){
-                this.setState({
-                    winner: data.winner,
-                    czar: false
-                });
-            }
-        });
+            this.props.socket.on("Set Up Next Round", ()=> {
+                if(this._isMounted){
+                    this.setupNewRound();
+                }
+            });
+
+            this.props.socket.on("Winning Cards", (data) => {
+                // highlight cards for a second and then erase
+                if(this._isMounted){
+
+                    this.highlightWinningCards(data.winningCards);
+                    this.highlightWinningPlayer(data.winningPlayer);
+                    this.getAdditionalCards();
+                    
+                    setTimeout(function(){
+                        this.retrieveGameData();
+                        this.setState({
+                            allAnswers: {}
+                        });
+                        this.unHighlightPlayers();
+                    }.bind(this), 1000);
+                }
+            });
+
+            this.props.socket.on("Winner Found", (data) => {
+                if(this._isMounted){
+                    this.setState({
+                        winner: data.winner,
+                        czar: false
+                    });
+                }
+            });
+        }
     }
 
 

@@ -94,7 +94,6 @@ class Search extends Component {
                                     className={className}
                                     key={suggestion}
                                     onClick={this.getInput}
-                                    onKeyDown={this.onEnterPress}
                                 >
                                     {suggestion}
                                 </li>
@@ -121,11 +120,9 @@ class Search extends Component {
 
 
     onEnterPress = (event) => {
-        console.log("Enret press")
         if (event.keyCode === 13) {
-            console.log("Enret press")
             this.setState({
-                user_input: event.currentTarget.innerText,
+                user_input: this.state.filteredSuggestions[this.state.activeSuggestion] || this.state.user_input,
                 filteredSuggestions: [],
                 showSuggestions: false
             }, () => {
@@ -144,6 +141,7 @@ class Search extends Component {
                     type="search"
                     variant="outlined"
                     onChange={this.onChange}
+                    onKeyDown={this.onEnterPress}
                     value={this.state.user_input}
                 />
                 <div className="autocompleteList">{this.renderSuggestions()}</div>

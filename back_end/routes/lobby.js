@@ -209,7 +209,6 @@ router.put('/leave', (req, res) => {
 
 // get 'num' number of lobbies
 router.get('/random/:num', (req, res) => {
-    console.log("HERE2")
     Game.aggregate([{$sample: {size: Number(req.params.num)}}], (err, response) => {
         if(err) {
             console.log(err.message);
@@ -234,7 +233,6 @@ router.get('/random/:num', (req, res) => {
 
 
 router.get('/user/:host', (req, res) => {
-    console.log("HERE1")
     Game.findOne({host: req.params.host}, (err, response) => {
         if(err) {
             throw err;
