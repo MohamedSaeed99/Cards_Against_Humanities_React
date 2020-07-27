@@ -134,16 +134,18 @@ class Search extends Component {
 
     render() {
         return (
-            <div>
-                <TextField 
-                    id="outlined-search" 
-                    label="Search" 
-                    type="search"
-                    variant="outlined"
-                    onChange={this.onChange}
-                    onKeyDown={this.onEnterPress}
-                    value={this.state.user_input}
-                />
+            <div className="search">
+                <div className="bar">
+                    <TextField 
+                        id="outlined-search" 
+                        label="Search" 
+                        type="search"
+                        variant="outlined"
+                        onChange={this.onChange}
+                        onKeyDown={this.onEnterPress}
+                        value={this.state.user_input}
+                    />
+                </div>
                 <div className="autocompleteList">{this.renderSuggestions()}</div>
             </div>
         )

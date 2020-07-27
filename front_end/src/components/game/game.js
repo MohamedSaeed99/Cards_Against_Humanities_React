@@ -12,7 +12,7 @@ class Game extends Component {
         this.state = {
             winner: null,
             points: [],
-            czar: false,
+            isCzar: false,
             players: [],
             queCard: null,
             allAnswers: {},
@@ -132,7 +132,7 @@ class Game extends Component {
                 if(this._isMounted){
                     this.setState({
                         winner: data.winner,
-                        czar: false
+                        isCzar: false
                     });
                 }
             });
@@ -156,19 +156,19 @@ class Game extends Component {
 
 
     highlightWinningPlayer = (winner) => {
-        const players = document.getElementsByClassName("players");
-        for(let i = 0; i < players.length; i++){
-            if((players[i].innerText).includes(winner)){
-                players[i].style.backgroundColor = "lightblue";
+        const lobbyStatsClass = document.getElementsByClassName("lobbystats");
+        for(let i = 0; i < lobbyStatsClass.length; i++){
+            if((lobbyStatsClass[i].childNodes[0].innerText).includes(winner)){
+                lobbyStatsClass[i].style.backgroundColor = "lightblue";
             }
         }
     }
 
 
     unHighlightPlayers = () => {
-        const players = document.getElementsByClassName("players");
-        for(let i = 0; i < players.length; i++){
-            players[i].style.backgroundColor = "lightgray";
+        const lobbyStatsClass = document.getElementsByClassName("lobbystats");
+        for(let i = 0; i < lobbyStatsClass.length; i++){
+            lobbyStatsClass[i].style.backgroundColor = "lightgray";
         }
     }
 
@@ -241,7 +241,8 @@ class Game extends Component {
                     numOfAnswers: body.numOfAnswers,
                     players: body.players,
                     points: body.points,
-                    czar: this.state.winner === null ? body.czar === this.props.username : false
+                    isCzar: this.state.winner === null ? body.czar === this.props.username : false,
+                    czar: body.czar
                 });
             });
         });
@@ -267,7 +268,7 @@ class Game extends Component {
 
     
     submitUserAnswer = (event) => {
-        if(this.state.numOfAnswers > 0 && !this.state.czar){
+        if(this.state.numOfAnswers > 0 && !this.state.isCzar){
             const htmlText = event.currentTarget.innerHTML;
             const cardText = htmlText.substring(3, htmlText.indexOf("</p>"));
 
@@ -317,8 +318,9 @@ class Game extends Component {
         const players = this.state.players;
         const users = players.map((name, index) => {
                     return(
-                        <div key={index.toString()}>
+                        <div className="lobbystats" key={index.toString()}>
                             <p  className="players">{name}: {this.state.points[index]}</p>
+                            <p className="czarstatus">{name === this.state.czar ? "Czar" : "Player"}</p>
                         </div>
                     )
             });
@@ -346,7 +348,7 @@ class Game extends Component {
 
 
     changeBackgroundColorToSelectColor = (event) => {
-        if(this.state.czar){
+        if(this.state.isCzar){
             const answerCards = document.getElementsByClassName("answerCard");
             for(let i = 0; i < answerCards.length; i++){
                 answerCards[i].style.backgroundColor = "white";
@@ -393,7 +395,7 @@ class Game extends Component {
 
 
     coverCardWhenCzar = () => {
-        if(this.state.czar){
+        if(this.state.isCzar){
             return(<div className="cover">
                 <p className="notifier"> YOU ARE CZAR </p>
             </div>);
@@ -432,7 +434,7 @@ class Game extends Component {
                                 <p dangerouslySetInnerHTML={{__html: this.state.queCard}}/>
                             </div>
                             <div className="submitArea">
-                                {this.state.czar ? 
+                                {this.state.isCzar ? 
                                     <Button variant="outlined" className="submitBtn" onClick={this.chooseAnswer}>Submit</Button> 
                                     :
                                     <Button variant="outlined" className="submitBtn" disabled>Submit</Button> }

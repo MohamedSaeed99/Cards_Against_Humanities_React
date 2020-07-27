@@ -72,12 +72,25 @@ body{
 .players{
     margin: 0;
     padding: 0;
+}
+
+.lobbystats {
+    margin: 0;
+    padding: 0;
     width: 150px;
-    height: 30px;
+    height: 40px;
     display: block;
     border-width: 1px;
     border-color: rgba(0,0,0, 0.5);
     border-style: none none solid none;
+}
+
+.czarstatus{
+    padding: 0;
+    margin: 0;
+    width: 150px;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .playerCards, .answerCards {

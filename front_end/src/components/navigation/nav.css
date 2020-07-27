@@ -11,10 +11,7 @@ body{
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.option{
-    margin-right: 10px !important;
+    box-shadow: 0 2px black;
 }
 
 .displayUser {
@@ -34,4 +31,11 @@ body{
 
 .title {
     font-size: 30px;
+}
+
+
+@media screen and (max-width: 600px) {
+    .title {
+        font-size: 20px;
+    }
 }
