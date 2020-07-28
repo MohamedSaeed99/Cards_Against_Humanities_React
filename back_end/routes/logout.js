@@ -4,8 +4,15 @@ const router = express.Router();
 
 
 router.get("/", (req, res, next) => {
-    console.log("User Logging Out");
-    req.logOut();
+    if(req.user){
+        req.logOut();
+        res.send({
+            message: "User Logged Out"
+        });
+    } 
+    else {
+        res.send({ message: "No user to log out" });
+    }
 });
 
 module.exports = router;

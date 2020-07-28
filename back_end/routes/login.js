@@ -1,5 +1,6 @@
 const express = require('express');
 const passport = require('../passportConfig');
+const user = require('../db/models/user');
 const router = express.Router();
 
 
@@ -12,19 +13,29 @@ router.post('/', (req, res, next) => {
             });
         }
         else{
-            req.login(user, (err) => {
+            req.logIn(user, (err) => {
                 if(err) return next(err);
-                return res.json({user: user.username, success: true});
+                return res.json({user: req.user.username, success: true});
             });
         }
     })(req, res, next);    
 });
 
-router.get('/', (req, res, next) => {
-    console.log("In backend");
-    return res.json({
-        message: "Hit Here"
-    });
+router.get('/', (req, res) => {
+    if(req.user){
+        user.findOne({username: req.user.username}, (err, response) => {
+            return res.json({
+                user: response,
+                isAuth: true
+            });
+        });
+    }
+    else {
+        return res.json({
+            user: null,
+            isAuth: false
+        });
+    }
 });
 
 module.exports = router;

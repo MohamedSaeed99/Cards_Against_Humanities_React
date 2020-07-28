@@ -10,6 +10,8 @@ class Game extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            gameId: null,
+            username: null,
             winner: null,
             points: [],
             isCzar: false,
@@ -20,128 +22,147 @@ class Game extends Component {
             submittedAnswers: [],
             numOfAnswers: null,
             userCards: [],
-            redirectTo: null
+            redirectTo: null,
+            loaded: false,
         }
     }
 
     componentDidMount() {
         this._isMounted = true;
 
-        // sets up the game
-        if(this.props.gameId){
-            this.retrieveGameData();
-            this.retrieveUserCards();
+        this.getGameId(() => {
 
-            this.props.socket.emit("Get Initial Answers", (this.props.gameId));
-            this.props.socket.emit("Check For Winner", (this.props.gameId));
+            if(this.state.gameId){
+                this.retrieveGameData();
+                this.retrieveUserCards();
 
-            this.props.socket.on("User Joined", (username) => {
-                if(!this.state.players.includes(username)){
-                    this.state.players.push(username);
-                    this.state.points.push(0);
+                this.props.socket.emit("Get Initial Answers", (this.state.gameId));
+                this.props.socket.emit("Check For Winner", (this.state.gameId));
 
+                this.props.socket.on("User Joined", (username) => {
+                    if(!this.state.players.includes(username)){
+                        this.state.players.push(username);
+                        this.state.points.push(0);
+
+                        if(this._isMounted){
+                            this.setState({
+                                players: this.state.players,
+                                points: this.state.points
+                            });
+                        }
+                    }
+                });
+
+                // removes players from the lobby
+                this.props.socket.on("Host Left", () => {
+                    this.props.onLeaveGame(false, null);
+                    if(this._isMounted){
+                        this.setState({
+                            redirectTo: "/"
+                        });
+                    }
+                });
+
+                // notifies other players within the lobby that the user left
+                this.props.socket.on("User Left", (data) => {
+                    if(data.updateCzar) {
+                        if(this._isMounted){
+                            this.getAdditionalCards();
+                            this.retrieveGameData();
+                            this.setState({
+                                allAnswers: {}
+                            });
+                        }
+                    }
+                    const index = this.state.players.indexOf(data.username);
+                    this.state.players.splice(index, 1);
+                    this.state.points.splice(index, 1);
                     if(this._isMounted){
                         this.setState({
                             players: this.state.players,
                             points: this.state.points
                         });
                     }
-                }
-            });
+                });
 
-            // removes players from the lobby
-            this.props.socket.on("Host Left", () => {
-                this.props.onLeaveGame(false, null);
-                if(this._isMounted){
-                    this.setState({
-                        redirectTo: "/"
-                    });
-                }
-            });
-
-            // notifies other players within the lobby that the user left
-            this.props.socket.on("User Left", (data) => {
-                if(data.updateCzar) {
+                this.props.socket.on("Answer Cards", (data) => {
+                    const answers = this.state.allAnswers;
+                    answers[data.user] = data.cards
                     if(this._isMounted){
-                        this.getAdditionalCards();
-                        this.retrieveGameData();
                         this.setState({
-                            allAnswers: {}
+                            allAnswers: answers
                         });
                     }
-                }
-                const index = this.state.players.indexOf(data.username);
-                this.state.players.splice(index, 1);
-                this.state.points.splice(index, 1);
-                if(this._isMounted){
-                    this.setState({
-                        players: this.state.players,
-                        points: this.state.points
-                    });
-                }
-            });
+                });
 
-            this.props.socket.on("Answer Cards", (data) => {
-                const answers = this.state.allAnswers;
-                answers[data.user] = data.cards
-                if(this._isMounted){
-                    this.setState({
-                        allAnswers: answers
-                    });
-                }
-            });
+                this.props.socket.on("Update Initial Answers", (data) => {
+                    const answers = this.state.allAnswers;
+                    for(let key in data){
+                        answers[key] = data[key];
+                    }
 
-            this.props.socket.on("Update Initial Answers", (data) => {
-                const answers = this.state.allAnswers;
-                for(let key in data){
-                    answers[key] = data[key];
-                }
-
-                if(this._isMounted){
-                    this.setState({
-                        allAnswers: answers
-                    });
-                }
-            });
-
-            this.props.socket.on("Set Up Next Round", ()=> {
-                if(this._isMounted){
-                    this.setupNewRound();
-                }
-            });
-
-            this.props.socket.on("Winning Cards", (data) => {
-                // highlight cards for a second and then erase
-                if(this._isMounted){
-
-                    this.highlightWinningCards(data.winningCards);
-                    this.highlightWinningPlayer(data.winningPlayer);
-                    this.getAdditionalCards();
-                    
-                    setTimeout(function(){
-                        this.retrieveGameData();
+                    if(this._isMounted){
                         this.setState({
-                            allAnswers: {}
+                            allAnswers: answers
                         });
-                        this.unHighlightPlayers();
-                    }.bind(this), 1000);
-                }
-            });
+                    }
+                });
 
-            this.props.socket.on("Winner Found", (data) => {
-                if(this._isMounted){
-                    this.setState({
-                        winner: data.winner,
-                        isCzar: false
-                    });
-                }
-            });
-        }
+                this.props.socket.on("Set Up Next Round", ()=> {
+                    if(this._isMounted){
+                        this.setupNewRound();
+                    }
+                });
+
+                this.props.socket.on("Winning Cards", (data) => {
+                    // highlight cards for a second and then erase
+                    if(this._isMounted){
+
+                        this.highlightWinningCards(data.winningCards);
+                        this.highlightWinningPlayer(data.winningPlayer);
+                        this.getAdditionalCards();
+                        
+                        setTimeout(function(){
+                            this.retrieveGameData();
+                            this.setState({
+                                allAnswers: {}
+                            });
+                            this.unHighlightPlayers();
+                        }.bind(this), 1000);
+                    }
+                });
+
+                this.props.socket.on("Winner Found", (data) => {
+                    if(this._isMounted){
+                        this.setState({
+                            winner: data.winner,
+                            isCzar: false
+                        });
+                    }
+                });
+            }
+        });
     }
 
 
     componentWillUnmount() {
         this._isMounted = false;
+    }
+
+
+    getGameId = (callback) => {
+        fetch("/lobby/gameId/", {
+            method: "GET",
+        }).then(response => {
+            response.json().then( body => {
+                this.setState({
+                    gameId: body.gameId,
+                    username: body.username
+                }, () => {
+                    callback();
+                });
+            });
+        });
     }
 
 
@@ -195,7 +216,7 @@ class Game extends Component {
 
     setupNewRound = () => {
         let payload = {
-            gameId: this.props.gameId,
+            gameId: this.state.gameId,
             winner: this.findUsername(),
         }
 
@@ -211,7 +232,7 @@ class Game extends Component {
                 if(body.gameOver){
                     this.props.socket.emit("Player Won", {
                         winner: body.winner,
-                        gameId: this.props.gameId
+                        gameId: this.state.gameId
                     });
                 }
             });
@@ -226,7 +247,7 @@ class Game extends Component {
             Points
     */
     retrieveGameData = () => {
-        fetch("lobby/data/" + this.props.gameId, {
+        fetch("lobby/data/" + this.state.gameId, {
             method: "GET",
             header: {
                 "Content-type": "application/json",
@@ -241,8 +262,9 @@ class Game extends Component {
                     numOfAnswers: body.numOfAnswers,
                     players: body.players,
                     points: body.points,
-                    isCzar: this.state.winner === null ? body.czar === this.props.username : false,
-                    czar: body.czar
+                    isCzar: this.state.winner === null ? body.czar === this.state.username : false,
+                    czar: body.czar,
+                    loaded: true,
                 });
             });
         });
@@ -251,7 +273,7 @@ class Game extends Component {
 
     // gets the question card from the server
     retrieveUserCards = () => {
-        fetch("lobby/userCards/" + this.props.username, {
+        fetch("lobby/userCards/" + this.state.username, {
             method: "GET",
             header: {
                 "Content-type": "application/json",
@@ -283,8 +305,8 @@ class Game extends Component {
             });
             if(numOfAnswers === 0) {
                 this.props.socket.emit("Submitted Answers", {
-                    gameId: this.props.gameId,
-                    username: this.props.username,
+                    gameId: this.state.gameId,
+                    username: this.state.username,
                     submittedCards: this.state.submittedAnswers
                 });
             }
@@ -380,7 +402,7 @@ class Game extends Component {
         this.props.socket.emit("Selected Answers", {
             user: winningUser,
             winningCards: this.state.selectedAnswers,
-            gameId: this.props.gameId
+            gameId: this.state.gameId
         });
     }
 
@@ -426,35 +448,41 @@ class Game extends Component {
         }
         return(
             <div>
-                {this.displayWinner()}
-                <div className="game">
-                    <div className="top">
-                        <div className="questionCardArea">
-                            <div className="queCard">
-                                <p dangerouslySetInnerHTML={{__html: this.state.queCard}}/>
-                            </div>
-                            <div className="submitArea">
-                                {this.state.isCzar ? 
-                                    <Button variant="outlined" className="submitBtn" onClick={this.chooseAnswer}>Submit</Button> 
-                                    :
-                                    <Button variant="outlined" className="submitBtn" disabled>Submit</Button> }
+                {this.state.loaded ? 
+                    <div>
+                        {this.displayWinner()}
+                        <div className="game">
+                            <div className="top">
+                                <div className="questionCardArea">
+                                    <div className="queCard">
+                                        <p dangerouslySetInnerHTML={{__html: this.state.queCard}}/>
+                                    </div>
+                                    <div className="submitArea">
+                                        {this.state.isCzar ? 
+                                            <Button variant="outlined" className="submitBtn" onClick={this.chooseAnswer}>Submit</Button> 
+                                            :
+                                            <Button variant="outlined" className="submitBtn" disabled>Submit</Button> }
 
+                                    </div>
+                                </div>
+                                <div className="answerCards">
+                                    {this.renderAnswers()}
+                                </div>
+                            </div>
+                            <div className="bottom">
+                                <div className="gameStats">
+                                    {this.renderUsernames()}
+                                </div>
+                                <div className="playerCards">
+                                    {this.coverCardWhenCzar()}
+                                    {this.renderUserCards()}
+                                </div>
                             </div>
                         </div>
-                        <div className="answerCards">
-                            {this.renderAnswers()}
-                        </div>
                     </div>
-                    <div className="bottom">
-                        <div className="gameStats">
-                            {this.renderUsernames()}
-                        </div>
-                        <div className="playerCards">
-                            {this.coverCardWhenCzar()}
-                            {this.renderUserCards()}
-                        </div>
-                    </div>
-                </div>
+                    :
+                    <div></div>
+                }            
             </div>
         )
     }

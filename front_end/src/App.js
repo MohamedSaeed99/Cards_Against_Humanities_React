@@ -24,6 +24,34 @@ class App extends Component {
   }
 
 
+  componentDidMount() {
+    this.getInfoOnAuthStatus();
+  }
+
+
+  getInfoOnAuthStatus = async function() {
+    await fetch("/login/", {
+      method: "GET",
+      header: {
+        Accept: "application/json",
+        "Content-type": "application/json"
+      }
+    }).then((response) => {
+      response.json().then((body) => {
+        if(body.isAuth){
+          console.log(body);
+          this.setState({
+            loggedIn: true,
+            username: body.user.username,
+            gameId: body.user.gameId,
+            inGame: body.user.gameId === null ? false : true
+          });
+        }
+      })
+    });
+  }
+
+
   onChange = (status, username) => {
     this.setState({
       loggedIn: status,

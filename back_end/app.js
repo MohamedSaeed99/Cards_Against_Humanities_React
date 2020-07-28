@@ -11,7 +11,6 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: false }));
 app.use(
     session({
         secret: process.env.SECRET,
@@ -20,6 +19,7 @@ app.use(
         saveUninitialized: false,
     })
 );
+app.use(express.urlencoded({ extended: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 

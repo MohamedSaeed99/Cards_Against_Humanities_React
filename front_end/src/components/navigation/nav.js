@@ -7,12 +7,13 @@ class Nav extends Component{
     constructor(props){
         super(props);
         this.state = {
-            activeSuggestion: 0,
-            filteredSuggestions: [],
-            showSuggestions: false,
-            hosts: [],
-            user_input: "",
+            username: null,
         };
+    }
+
+
+    componentDidMount() {
+
     }
 
 

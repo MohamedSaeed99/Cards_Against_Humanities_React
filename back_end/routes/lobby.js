@@ -353,6 +353,25 @@ router.put("/newround", (req, res) => {
     });
 });
 
+
+router.get('/gameId/', (req, res) => {
+    if(req.user){
+        User.findOne({username: req.user.username}, (err, response) => {
+            return res.json({
+                gameId: response.gameId,
+                username: response.username
+            });
+        });
+    }
+    else {
+        return res.json({
+            gameId: null,
+            username: null
+        });
+    }
+});
+
+
 let updateCzar = (username, players) => {
     let indexOfPrevCzar = players.indexOf(username);
     let indexOfNewCzar = indexOfPrevCzar + 1;
