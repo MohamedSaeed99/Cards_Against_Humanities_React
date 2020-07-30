@@ -166,6 +166,9 @@ class Home extends Component {
         if(isNaN(event.currentTarget.value)){
             console.log("This is not a number");
         }
+        else if(Number(event.currentTarget.value) < 4){
+            console.log("Has to be greater than 3");
+        }
         else{
             this.setState({
                 maxPoints: event.currentTarget.value
@@ -177,6 +180,9 @@ class Home extends Component {
     onPlayerChange = (event) => {
         if(isNaN(event.currentTarget.value)){
             console.log("This is not a number");
+        }
+        else if(Number(event.currentTarget.value) <= 1){
+            console.log("Has to be greater than 1");
         }
         else{
             this.setState({

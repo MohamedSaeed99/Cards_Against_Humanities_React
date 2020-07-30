@@ -360,16 +360,30 @@ class Game extends Component {
 
     renderAnswers = () => {
         const answers = this.state.allAnswers;
-
+        
         const cards = Object.keys(answers).map((key) => {
             return (
-                <div className="groupAnswer" key={key}>
-                    {answers[key].map((card, ind) => {
-                        return (<div className="answerCard" key={ind.toString()} onClick={this.changeBackgroundColorToSelectColor}>
-                                <p dangerouslySetInnerHTML={{__html: card}} />
-                            </div>
-                        );
-                    })}
+                <div key={key}>
+                    {this.state.players.length - 1 === Object.keys(answers).length ?
+                        <div className="groupAnswer" key={key}>
+                            {answers[key].map((card, ind) => {
+                                return (
+                                    <div className="answerCard" key={ind.toString()} onClick={this.changeBackgroundColorToSelectColor}>
+                                            <p dangerouslySetInnerHTML={{__html: card}} />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        :
+                        <div className="groupAnswer" key={key}>
+                            {answers[key].map((ind) => {
+                                return (
+                                    <div className="answerCard" key={ind.toString()}>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    }
                 </div>
             )
         });
