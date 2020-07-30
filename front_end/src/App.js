@@ -14,37 +14,31 @@ class App extends Component {
   constructor (){
     super();
     this.state = {
-      loggedIn: false,
-      inGame: false,
-      lobbyForUser: null,
+      isLoggedIn: false,
+      isInGame: false,
       username: null,
-      game: null,
+      gameId: null,
       socket: openSocket('http://localhost:' + (process.env.PORT || 3001)),
     }
   }
-
 
   componentDidMount() {
     this.getInfoOnAuthStatus();
   }
 
 
-  getInfoOnAuthStatus = async function() {
-    await fetch("/login/", {
+  getInfoOnAuthStatus = function() {
+    fetch("/login/", {
       method: "GET",
-      header: {
-        Accept: "application/json",
-        "Content-type": "application/json"
-      }
     }).then((response) => {
       response.json().then((body) => {
         if(body.isAuth){
           console.log(body);
           this.setState({
-            loggedIn: true,
+            isLoggedIn: true,
             username: body.user.username,
             gameId: body.user.gameId,
-            inGame: body.user.gameId === null ? false : true
+            isInGame: body.user.gameId === null ? false : true,
           });
         }
       })
@@ -52,9 +46,9 @@ class App extends Component {
   }
 
 
-  onChange = (status, username) => {
+  onUserLoginStatus = (status, username) => {
     this.setState({
-      loggedIn: status,
+      isLoggedIn: status,
       username: username
     });
   } 
@@ -62,8 +56,8 @@ class App extends Component {
 
   joinedGame = (joined, gameId) => {
     this.setState({
-      inGame: joined,
-      game: gameId,
+      isInGame: joined,
+      gameId: gameId,
     });
   } 
 
@@ -72,26 +66,25 @@ class App extends Component {
     return (
       <div style={{height: 0, margin:0, padding:0}}>
         <Nav 
-          retrieveLobby={this.retrieveLobby}
-          onLogoutChange={this.onChange} 
+          onUserLoginStatus={this.onUserLoginStatus} 
           onLeaveGame={this.joinedGame} 
-          joinedGame={this.state.inGame} 
-          loggedIn={this.state.loggedIn} 
+          isInGame={this.state.isInGame} 
+          isLoggedIn={this.state.isLoggedIn} 
           username={this.state.username}
-          gameId={this.state.game}
-          socket={this.state.socket}>
+          gameId={this.state.gameId}
+          socket={this.state.socket} >
         </Nav>
         <Route exact path="/" render={() => <Home 
-                                              loggedIn={this.state.loggedIn} 
+                                              isLoggedIn={this.state.isLoggedIn} 
                                               username={this.state.username} 
                                               onJoinGame={this.joinedGame}
                                               socket={this.state.socket} />} />
-        <Route exact path="/register" render={() => <Register onRegisterChange={this.onChange} />} />
-        <Route exact path="/login" render={() => <Login onLoginChange={this.onChange}/>} />
+        <Route exact path="/register" render={() => <Register onRegisterChange={this.onUserLoginStatus} />} />
+        <Route exact path="/login" render={() => <Login onLoginChange={this.onUserLoginStatus}/>} />
         <Route exact path="/game" render={() => <Game
                                                   onLeaveGame={this.joinedGame}
                                                   socket={this.state.socket} 
-                                                  gameId={this.state.game}
+                                                  gameId={this.state.gameId}
                                                   username={this.state.username} />} />
       </div>
     );

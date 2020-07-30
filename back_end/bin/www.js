@@ -112,9 +112,6 @@ function onListening() {
 io.on('connection', (socket) => {
   // adds the host to the socket room
   socket.on('Created Game', (data) => {
-    socket.room = data.gameId;
-    socket.username = data.username;
-    socket.join(data.gameId);
     io.in(data.gameId).answers = {};
     io.in(data.gameId).winner = null;
   });
@@ -190,5 +187,9 @@ io.on('connection', (socket) => {
     socket.emit("Winner Found", {
       winner: io.in(gameId).winner
     });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("socket disconnected");
   });
 });

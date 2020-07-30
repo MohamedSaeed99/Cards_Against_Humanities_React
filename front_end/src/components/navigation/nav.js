@@ -4,22 +4,9 @@ import './nav.css';
 import { Button } from '@material-ui/core';
 
 class Nav extends Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            username: null,
-        };
-    }
-
-
-    componentDidMount() {
-
-    }
-
-
     logout = () => {
         // make post to let server know u logged out
-        this.props.onLogoutChange(false, null);
+        this.props.onUserLoginStatus(false, null);
         fetch("/logout/", {
             method: "GET"
         }).then((response) => {
@@ -62,14 +49,14 @@ class Nav extends Component{
 
 
     userOptions = () => {
-        if(this.props.joinedGame){
+        if(this.props.isInGame){
             return <div className="loggedIn">
                     <p className="displayUser">{this.props.username}</p> 
                     <Button><Link to="/" onClick={this.leaveGame} className="btn">Leave</Link></Button>
                 </div>
         }
         else {
-            if(this.props.loggedIn){
+            if(this.props.isLoggedIn){
                 return (<div className="loggedIn">
                             <p className="displayUser">{this.props.username}</p> 
                             <Button><Link to="/" className="btn">Home</Link></Button>

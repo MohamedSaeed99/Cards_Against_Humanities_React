@@ -1,6 +1,6 @@
 const express = require('express');
 const passport = require('../passportConfig');
-const user = require('../db/models/user');
+const User = require('../db/models/user');
 const router = express.Router();
 
 
@@ -23,7 +23,10 @@ router.post('/', (req, res, next) => {
 
 router.get('/', (req, res) => {
     if(req.user){
-        user.findOne({username: req.user.username}, (err, response) => {
+        User.findOne({username: req.user.username}, (err, response) => {
+            if(err) {
+                throw err;
+            }
             return res.json({
                 user: response,
                 isAuth: true

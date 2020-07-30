@@ -29,6 +29,6 @@ or make a `pull request`.
 - [x] Password portected lobbies
 - [x] Search Bar for game searches
 - [x] Game stats(e.g num of players) display
-- [] Session Handling (Passport)
+- [x] Session Handling (Passport)
 - [] Friend System (Adding and Removing)
 - [] Inviting Friends to Lobby

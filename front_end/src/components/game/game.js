@@ -33,6 +33,13 @@ class Game extends Component {
         this.getGameId(() => {
 
             if(this.state.gameId){
+                
+                this.props.socket.emit("Game Joined", {
+                    gameId: this.state.gameId, 
+                    username: this.state.username
+                });
+
+                console.log(this.props.socket);
                 this.retrieveGameData();
                 this.retrieveUserCards();
 
@@ -235,6 +242,7 @@ class Game extends Component {
                         gameId: this.state.gameId
                     });
                 }
+                console.log("Got players");
             });
         });
     }
@@ -398,12 +406,14 @@ class Game extends Component {
 
 
     chooseAnswer = () => {
-        const winningUser = this.findUsername();
-        this.props.socket.emit("Selected Answers", {
-            user: winningUser,
-            winningCards: this.state.selectedAnswers,
-            gameId: this.state.gameId
-        });
+        if(this.state.selectedAnswers.length !== 0){
+            const winningUser = this.findUsername();
+            this.props.socket.emit("Selected Answers", {
+                user: winningUser,
+                winningCards: this.state.selectedAnswers,
+                gameId: this.state.gameId
+            });
+        }
     }
 
 

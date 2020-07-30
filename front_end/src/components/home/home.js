@@ -47,7 +47,7 @@ class Home extends Component {
 
 
     createGameWhenLoggedIn = () => {
-        if(!this.props.loggedIn) {
+        if(!this.props.isLoggedIn) {
             this.loginUser();
         }
         else {
@@ -89,7 +89,7 @@ class Home extends Component {
         this.setState({
             selectedLobby: lobby
         }, () => {
-            if(!this.props.loggedIn) {
+            if(!this.props.isLoggedIn) {
                 this.loginUser();
             }
             else if(lobby.password.length !== 0){
@@ -132,10 +132,6 @@ class Home extends Component {
                     this.props.onJoinGame(true, body.gameId);
                     this.setState({
                         redirectTo: "/game"
-                    });
-                    this.props.socket.emit("Game Joined", {
-                        gameId: this.state.selectedLobby.gameId, 
-                        username: this.props.username
                     });
                 }else {
                     alert(body.message);
