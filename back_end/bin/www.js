@@ -134,7 +134,6 @@ io.on('connection', (socket) => {
     socket.leave(data.gameId);
   });
 
-  // adds users to the socket room
   socket.on('Game Joined', (data) => {
     socket.room = data.gameId;
     socket.username = data.username;

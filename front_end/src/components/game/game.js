@@ -23,6 +23,7 @@ class Game extends Component {
             numOfAnswers: null,
             userCards: [],
             redirectTo: null,
+            hassubmitted: false,
             loaded: false,
         }
     }
@@ -202,18 +203,22 @@ class Game extends Component {
 
 
     getAdditionalCards = () => {
-        if(this.state.userCards.length <= 12){
-            fetch("lobby/cards/" + this.state.userCards.length.toString(), {
-                method: "GET",
+        if(this.state.userCards.length < 12){
+            var payload = {
+                cards: this.state.userCards,
+                username: this.state.username
+            }
+            fetch("lobby/userCards/", {
+                method: "PUT",
                 headers: {
                     "Content-type": "application/json",
                     Accept: "application/json"
-                }
+                },
+                body: JSON.stringify(payload)
             }).then((response) => {
                 response.json().then((body) => {
-                    let newCards = this.state.userCards.concat(body.cards);
                     this.setState({
-                        userCards: newCards
+                        userCards: body.cards
                     });
                 });
             });
@@ -257,10 +262,6 @@ class Game extends Component {
     retrieveGameData = () => {
         fetch("lobby/data/" + this.state.gameId, {
             method: "GET",
-            header: {
-                "Content-type": "application/json",
-                Accept: "application/json"
-            }
         }).then((response) => {
             response.json().then((body) => {
                 this.setState({
@@ -272,6 +273,7 @@ class Game extends Component {
                     points: body.points,
                     isCzar: this.state.winner === null ? body.czar === this.state.username : false,
                     czar: body.czar,
+                    hassubmitted: false,
                     loaded: true,
                 });
             });
@@ -283,10 +285,6 @@ class Game extends Component {
     retrieveUserCards = () => {
         fetch("lobby/userCards/" + this.state.username, {
             method: "GET",
-            header: {
-                "Content-type": "application/json",
-                Accept: "application/json"
-            }
         }).then((response) => {
             response.json().then((body) => {
                 this.setState({
@@ -297,36 +295,59 @@ class Game extends Component {
     }
 
     
-    submitUserAnswer = (event) => {
-        if(this.state.numOfAnswers > 0 && !this.state.isCzar){
-            const htmlText = event.currentTarget.innerHTML;
-            const cardText = htmlText.substring(3, htmlText.indexOf("</p>"));
+    selectUserAnswer = (event) => {
+        if(!this.state.isCzar && !this.state.hassubmitted){
+            if(this.state.submittedAnswers.length < this.state.numOfAnswers){
+                event.currentTarget.style.backgroundColor = "lightblue"
+                const htmlText = event.currentTarget.innerHTML;
+                const cardText = htmlText.substring(3, htmlText.indexOf("</p>"));
 
-            this.state.submittedAnswers.push(cardText);
-            
-            this.removeUserCardFromList(cardText);
-            const numOfAnswers = this.state.numOfAnswers - 1;
-            this.setState({
-                userCards: this.state.userCards,
-                numOfAnswers: numOfAnswers,
-                submittedAnswers: this.state.submittedAnswers
-            });
-            if(numOfAnswers === 0) {
-                this.props.socket.emit("Submitted Answers", {
-                    gameId: this.state.gameId,
-                    username: this.state.username,
-                    submittedCards: this.state.submittedAnswers
+                this.state.submittedAnswers.push(cardText);
+                
+                this.setState({
+                    submittedAnswers: this.state.submittedAnswers
+                });
+            }
+            else {
+                this.unHighlightUserCards();
+                this.setState({
+                    submittedAnswers: []
                 });
             }
         }
     }
 
 
-    removeUserCardFromList = (cardText) => {
-        this.state.userCards.forEach((item, index) => {
-            if(item.split('/').join('') === cardText.split('/').join('')){
-                this.state.userCards.splice(index, 1);
-            }
+    submitUserAnswer = () => {
+        this.unHighlightUserCards();
+        this.removeUserCardFromList();
+        this.props.socket.emit("Submitted Answers", {
+            gameId: this.state.gameId,
+            username: this.state.username,
+            submittedCards: this.state.submittedAnswers,
+        });
+        this.setState({
+            hassubmitted: true,
+            submittedAnswers: []
+        });
+    }
+
+
+    unHighlightUserCards = () => {
+        const userCards = document.getElementsByClassName("userCard");
+        for(var i = 0; i < userCards.length; i++){
+            userCards[i].style.backgroundColor = "white"
+        }
+    }
+
+
+    removeUserCardFromList = () => {
+        this.state.submittedAnswers.forEach((card, index) => {
+            this.state.userCards.forEach((item, index) => {
+                if(item.split('/').join('') === card.split('/').join('')){
+                    this.state.userCards.splice(index, 1);
+                }
+            });
         });
     }
 
@@ -335,7 +356,7 @@ class Game extends Component {
         const userCards = this.state.userCards;
         const cards = userCards.map((card, index) => {
                     return(
-                        <div className="userCard" key={index.toString()} onClick={this.submitUserAnswer}>
+                        <div className="userCard" key={index.toString()} onClick={this.selectUserAnswer}>
                             <p dangerouslySetInnerHTML={{__html: card}}/>
                         </div>
                     );
@@ -501,6 +522,15 @@ class Game extends Component {
                                     {this.coverCardWhenCzar()}
                                     {this.renderUserCards()}
                                 </div>
+                            </div>
+                            <div className="answerbtncontainer">
+                                {this.state.submittedAnswers.length === this.state.numOfAnswers ?
+                                    <div>
+                                        <Button variant="outlined" className="answerbtn" onClick={this.submitUserAnswer}>Submit Answers</Button> 
+                                    </div>
+                                    :
+                                    <Button variant="outlined" className="answerbtn" disabled>Submit Answers</Button> 
+                                }
                             </div>
                         </div>
                     </div>

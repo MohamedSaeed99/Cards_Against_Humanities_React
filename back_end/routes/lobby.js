@@ -307,9 +307,23 @@ router.get("/userCards/:user", (req, res) => {
 });
 
 
-router.get("/cards/:amount", (req, res) => {
-    return res.json({
-        cards: randAnsCards(Number(req.params.amount))
+router.put("/userCards/", (req, res) => {
+    var oldCards = req.body.cards
+    var additionalCards = randAnsCards(oldCards.length);
+    const totalCards = oldCards.concat(additionalCards);
+
+    User.updateOne({username: req.body.username},  {$set: { currCards: totalCards }}, (err, result) => {
+        if(err){
+            throw err;
+        }
+    });
+    User.findOne({username: req.body.username}, (err, result) => {
+        if(err){
+            throw err;
+        }
+        return res.json({
+            cards: result.currCards
+        });
     });
 });
 
