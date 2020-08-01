@@ -68,9 +68,13 @@ body{
     border-style: none solid solid none;
 }
 
-.players{
+.players, .czarstatus, .points{
     margin: 0;
     padding: 0;
+}
+
+.players {
+    overflow: hidden;
 }
 
 .lobbystats {
@@ -84,12 +88,14 @@ body{
     border-style: none none solid none;
 }
 
-.czarstatus{
-    padding: 0;
+.point_status {
     margin: 0;
+    padding: 0;
+    height: 0;
     width: 150px;
     display: flex;
-    justify-content: flex-end;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .playerCards, .answerCards {

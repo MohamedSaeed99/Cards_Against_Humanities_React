@@ -12,15 +12,14 @@ class Login extends Component{
         this.state ={
             redirectTo: null,
             errorMessage: null,
-            user_username: null,
-            user_password: null
+            user_username: "",
+            user_password: ""
         }
     }
 
     
     // Makes post request to 
     loginUser = () => {
-        
         var payload = {
             username: this.state.user_username,
             password: this.state.user_password
@@ -49,10 +48,22 @@ class Login extends Component{
     // Stores the state of current user input
     onChange = (event) => {
         if(event.currentTarget.type === "password"){
-            this.setState({user_password: event.currentTarget.value});
+            if(!event.currentTarget.value.includes("<") && !event.currentTarget.value.includes(">")){ 
+                this.setState({user_password: event.currentTarget.value});
+            }
+            else {
+                this.setState({
+                    errorMessage: "Invalid token '<', '>', or '/' read",
+                    user_password: this.state.user_password});
+            }
         }
         else{
-            this.setState({user_username: event.currentTarget.value});
+            if(!event.currentTarget.value.includes("<") && !event.currentTarget.value.includes(">") && !event.currentTarget.value.includes("/")){ 
+                this.setState({user_username: event.currentTarget.value});
+            }
+            else {
+                this.setState({user_username: this.state.user_username});
+            }
         }
     }
 
@@ -66,9 +77,9 @@ class Login extends Component{
                     <h1 className="title">Login</h1>
                     {this.state.errorMessage ? <Alert className="msg" variant="filled" severity="error">{this.state.errorMessage}</Alert>:<p></p>}
                     <div className="input">
-                        <TextField className="username" label="Username" onChange={this.onChange}/>
+                        <TextField className="username" label="Username" onChange={this.onChange} value={this.state.user_username}/>
                         <div className="spaceBetween"></div>
-                        <TextField className="password" type="password" label="Password" onChange={this.onChange}/>
+                        <TextField className="password" type="password" label="Password" onChange={this.onChange} value={this.state.user_password}/>
                     </div>
                     <div className="formFooter">
                         <Button variant="contained" onClick={this.loginUser} color="primary">Login</Button>

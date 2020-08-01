@@ -11,8 +11,8 @@ class Register extends Component{
         this.state ={
             errorMessage: null,
             redirectTo: null,
-            user_username: null,
-            user_password: null
+            user_username: "",
+            user_password: ""
         }
     }
 
@@ -21,9 +21,7 @@ class Register extends Component{
         var payload = {
             username: this.state.user_username.replace(" ", ""),
             password: this.state.user_password
-        }
-        console.log(payload)
-        
+        }        
         fetch("/register/", {
             method: "POST",
             headers: {
@@ -35,15 +33,10 @@ class Register extends Component{
 
         }).then((response)=>{
             response.json().then((body) => {
-                console.log(body);
                 if(body.success){
-                    console.log("Here")
                     this.props.onRegisterChange(true, body.user);
-                    console.log("Here")
 
                     this.setState({redirectTo: "/"});
-                    console.log("Here")
-
                 }
                 else {
                     this.setState({errorMessage: body.message})
@@ -55,10 +48,22 @@ class Register extends Component{
     // Stores the state of current user input
     onChange = (event) => {
         if(event.currentTarget.type === "password"){
-            this.setState({user_password: event.currentTarget.value});
+            if(!event.currentTarget.value.includes("<") && !event.currentTarget.value.includes(">")){ 
+                this.setState({user_password: event.currentTarget.value});
+            }
+            else {
+                this.setState({
+                    errorMessage: "Invalid token '<', '>', or '/' read",
+                    user_password: this.state.user_password});
+            }
         }
         else{
-            this.setState({user_username: event.currentTarget.value});
+            if(!event.currentTarget.value.includes("<") && !event.currentTarget.value.includes(">") && !event.currentTarget.value.includes("/")){ 
+                this.setState({user_username: event.currentTarget.value});
+            }
+            else {
+                this.setState({user_username: this.state.user_username});
+            }
         }
     }
 
@@ -72,9 +77,9 @@ class Register extends Component{
                     <h1 className="title">Register</h1>
                     {this.state.errorMessage ? <Alert className="msg" variant="filled" severity="error">{this.state.errorMessage}</Alert>:<p></p>}
                     <div className="input">
-                        <TextField className="username" label="Username" onChange={this.onChange}/>
+                        <TextField className="username" label="Username" onChange={this.onChange} value={this.state.user_username}/>
                         <div className="spaceBetween"></div>
-                        <TextField className="password" type="password" label="Password" onChange={this.onChange}/>
+                        <TextField className="password" type="password" label="Password" onChange={this.onChange} value={this.state.user_password}/>
                     </div>
                     <div className="formFooter">
                         <Button variant="contained" onClick={this.registerUser} color="primary">Register</Button>

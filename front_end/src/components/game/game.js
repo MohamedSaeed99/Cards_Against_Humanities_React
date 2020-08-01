@@ -370,8 +370,11 @@ class Game extends Component {
         const users = players.map((name, index) => {
                     return(
                         <div className="lobbystats" key={index.toString()}>
-                            <p  className="players">{name}: {this.state.points[index]}</p>
-                            <p className="czarstatus">{name === this.state.czar ? "Czar" : "Player"}</p>
+                            <p  className="players">{name}</p>
+                            <div className="point_status">
+                                <p className="points">{this.state.points[index]}</p>
+                                <p className="czarstatus">{name === this.state.czar ? "Czar" : "Player"}</p>
+                            </div>
                         </div>
                     )
             });
