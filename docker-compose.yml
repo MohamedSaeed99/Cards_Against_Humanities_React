@@ -9,7 +9,7 @@ services:
         - ./data:/data/db
         
   backend:
-    build: ./backend/
+    build: ./back_end/
     restart: always
     environment:
       - MONGO_DB_URI=mongodb://database
@@ -19,7 +19,7 @@ services:
       - database
       
   frontend:
-    build: ./frontend/
+    build: ./front_end/
     restart: always
     ports:
       - "3000:3000"
