@@ -77,7 +77,8 @@ class Home extends Component {
                 this.props.onJoinGame(true, body.gameId);
                 this.props.socket.emit("Created Game", {gameId: body.gameId, username: this.props.username});
                 this.setState({
-                    redirectTo: "/game"
+                    redirectTo: "/game",
+                    lobbies: []
                 });
                 
             });
@@ -131,7 +132,8 @@ class Home extends Component {
                 if(body.success) {
                     this.props.onJoinGame(true, body.gameId);
                     this.setState({
-                        redirectTo: "/game"
+                        redirectTo: "/game",
+                        lobbies: []
                     });
                 }else {
                     alert(body.message);
