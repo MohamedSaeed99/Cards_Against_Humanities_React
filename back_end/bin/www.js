@@ -190,3 +190,7 @@ io.on('connection', (socket) => {
     console.log("socket disconnected");
   });
 });
+
+if(process.env.NODE_ENV === "production"){
+  app.use(express.static("../front_end/build"))
+}
