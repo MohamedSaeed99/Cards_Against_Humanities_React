@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
     session({
-        secret: process.env.SECRET,
+        secret: "HELLO WORLD THIS IS SUPPOSED TO BE A SECRET, BUT IM TESTIN IT",
         store: new MongoStore({ mongooseConnection: connection }),
         resave: false,
         saveUninitialized: false,
