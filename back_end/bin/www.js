@@ -9,6 +9,7 @@
  * Module dependencies.
  */
 var app = require('../app');
+const express = require('express');
 const debug = require('debug')('cards_against_humanities');
 var http = require('http');
 const regRouter = require('../routes/register');
