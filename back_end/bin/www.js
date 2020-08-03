@@ -3,10 +3,6 @@
 /*
     This is the server inlcude socket.io in here
 */
-const regRouter = require('../routes/register');
-const loginRouter = require('../routes/login');
-const lobbyRouter = require('../routes/lobby');
-const logoutRouter = require('../routes/logout');
 
 
 /**
@@ -15,6 +11,25 @@ const logoutRouter = require('../routes/logout');
 var app = require('../app');
 const debug = require('debug')('cards_against_humanities');
 var http = require('http');
+const regRouter = require('../routes/register');
+const loginRouter = require('../routes/login');
+const lobbyRouter = require('../routes/lobby');
+const logoutRouter = require('../routes/logout');
+const path = require('path');
+
+
+app.use("/register", regRouter);
+app.use("/login", loginRouter);
+app.use("/logout", logoutRouter);
+app.use("/lobby", lobbyRouter);
+
+
+if(process.env.NODE_ENV === "production"){
+    app.use(express.static("../front_end/build"));
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname, 'front_end', 'build', 'index.html'));
+    });
+}
 
 /**
  * Get port from environment and store in Express.
@@ -29,11 +44,6 @@ app.set('port', port);
 
 var server = http.createServer(app);
 const io = require("socket.io")(server);
-
-app.use("/register", regRouter);
-app.use("/login", loginRouter);
-app.use("/logout", logoutRouter);
-app.use("/lobby", lobbyRouter);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -190,7 +200,3 @@ io.on('connection', (socket) => {
     console.log("socket disconnected");
   });
 });
-
-if(process.env.NODE_ENV === "production"){
-  app.use(express.static("../front_end/build"))
-}
