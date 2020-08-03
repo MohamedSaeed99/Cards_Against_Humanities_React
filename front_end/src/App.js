@@ -18,7 +18,7 @@ class App extends Component {
       isInGame: false,
       username: null,
       gameId: null,
-      socket: openSocket('http://localhost:' + (process.env.PORT || 3001)),
+      socket: openSocket('http://192.168.0.27:3000'),
     }
   }
 

@@ -18,16 +18,6 @@ or make a `pull request`.
 
 ## Running the program
 
-### Using Docker:
-
-1. Install Docker https://docs.docker.com/install/.
-2. Install Docker Compose https://docs.docker.com/compose/install/.
-3. In project root directory run docker-compose build.
-4. Then run docker-compose up.
-5. The site should be up on localhost:3000.
-
-### Using MongoDB Atlas for the DB:
-
 #### First setup the database:
 1. Go to `https://mlab.com/`
 2. Sign up if you don't have an account otherwise login.
