@@ -35,10 +35,12 @@ or make a `pull request`.
 #### For a simple, native deploy:
 
 1. Clone the repo into a spatious drive or directory of your choosing
-2. Change the proxy in frontend/package.json to the correct IP/localhost of your choosing(http://localhost:PORT)
+2. Change the proxy in front_end/package.json to the correct IP/localhost of your choosing(http://localhost:PORT)
 3. Create a file in the /backend called '.env' and based on the 'sample.env' file provided, fill out the details according to your MongoDB (the database itself will have to be setup by you)
-4. run 'npm install' in the /frontend and the /backend folders
-5. run 'npm run' in the /frontend and the /backend foldershttps://github.com/ckanich-classrooms/final-project-the-foobar-fighters.git
+4. run 'npm install' in the /front_end and the /back_end folders
+5. run 'npm run' in the /front_end and the /back_end folders
+
+_might need to change the url belonging to the method `openSocket` in `/front_end/App.js` to `http://localhost:3000`_.
 
 
 ## TODO List
