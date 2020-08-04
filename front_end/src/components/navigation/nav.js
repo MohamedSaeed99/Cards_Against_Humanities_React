@@ -9,8 +9,6 @@ class Nav extends Component{
         this.props.onUserLoginStatus(false, null);
         fetch("/logout/", {
             method: "GET"
-        }).then((response) => {
-            console.log(response)
         });
     }
 

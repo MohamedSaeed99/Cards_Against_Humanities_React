@@ -40,7 +40,6 @@ class Game extends Component {
                     username: this.state.username
                 });
 
-                console.log(this.props.socket);
                 this.retrieveGameData();
                 this.retrieveUserCards();
 
@@ -247,7 +246,6 @@ class Game extends Component {
                         gameId: this.state.gameId
                     });
                 }
-                console.log("Got players");
             });
         });
     }

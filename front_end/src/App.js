@@ -33,7 +33,6 @@ class App extends Component {
     }).then((response) => {
       response.json().then((body) => {
         if(body.isAuth){
-          console.log(body);
           this.setState({
             isLoggedIn: true,
             username: body.user.username,
