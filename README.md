@@ -1,8 +1,8 @@
 # Cards_Against_Humanities_React
 
-```https://cards-against-humanity-react.herokuapp.com
-  Sorry link is currently not working.
-```
+```https://cards-against-humanity-react.herokuapp.com```
+
+```Sorry link is currently not working```
 
 
 ## About
