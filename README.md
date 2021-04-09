@@ -46,7 +46,7 @@ _might need to change the url belonging to the method `openSocket` in `/front_en
 
 
 ## TODO List
-- [x] User Registeration 
+- [x] User Registration 
 - [x] User Login
 - [x] Lobby Creation
 - [x] Leaving Lobbies
@@ -54,7 +54,7 @@ _might need to change the url belonging to the method `openSocket` in `/front_en
 - [x] Submitting Answers to questions
 - [x] Point System
 - [x] Player limit
-- [x] Password portected lobbies
+- [x] Password protected lobbies
 - [x] Search Bar for game searches
 - [x] Game stats(e.g num of players) display
 - [x] Session Handling (Passport)
