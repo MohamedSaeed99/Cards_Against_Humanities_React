@@ -58,5 +58,3 @@ _might need to change the url belonging to the method `openSocket` in `/front_en
 - [x] Search Bar for game searches
 - [x] Game stats(e.g num of players) display
 - [x] Session Handling (Passport)
-- [] Friend System (Adding and Removing) ... Optional
-- [] Inviting Friends to Lobby ... Optional
