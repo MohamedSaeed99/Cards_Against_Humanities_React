@@ -46,15 +46,15 @@ _might need to change the url belonging to the method `openSocket` in `/front_en
 
 
 ## TODO List
-- [x] User Registration 
-- [x] User Login
-- [x] Lobby Creation
-- [x] Leaving Lobbies
-- [x] Joinging Lobbies
-- [x] Submitting Answers to questions
-- [x] Point System
+- [x] User registration 
+- [x] User login
+- [x] Lobby creation
+- [x] Leaving lobbies
+- [x] Joining lobbies
+- [x] Submitting answers to prompts
+- [x] Point system
 - [x] Player limit
 - [x] Password protected lobbies
-- [x] Search Bar for game searches
+- [x] Searchbar for game searches
 - [x] Game stats(e.g num of players) display
-- [x] Session Handling (Passport)
+- [x] Session handling (Passport)
