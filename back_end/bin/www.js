@@ -114,7 +114,6 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-
 /*
   Socket.io
 */
@@ -127,7 +126,6 @@ io.on('connection', (socket) => {
 
   // Emission that would kick every player within the hosted lobby out
   socket.on('Host Leaving', (data) => {
-    // TODO: Destory the game room
     socket.to(data.gameId).emit("Host Left");
   });
 
@@ -158,8 +156,6 @@ io.on('connection', (socket) => {
   socket.on("Submitted Answers", (data) => {
     try{
       io.in(data.gameId).answers[data.username] = data.submittedCards;
-      
-      // TODO: Figure out a cleaner way to send to all people within a room including sender
       socket.emit("Answer Cards", ({
         user: data.username,
         cards: data.submittedCards
@@ -169,7 +165,6 @@ io.on('connection', (socket) => {
         cards: data.submittedCards
       }));
     }catch(e){
-      // have a popup or an alert notifying users
       console.error(e);
     }
   });
