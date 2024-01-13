@@ -20,15 +20,15 @@ The in-game page is made to look clean and easier to understand. Players can scr
 * Execute `npm run` in the /front_end and the /back_end folders
 
 ## TODO List
-- [x] User Registeration 
-- [x] User Login
-- [x] Lobby Creation
-- [x] Leaving Lobbies
-- [x] Joinging Lobbies
-- [x] Submitting Answers to questions
-- [x] Point System
+- [x] User registration 
+- [x] User login
+- [x] Lobby creation
+- [x] Leaving lobbies
+- [x] Joining lobbies
+- [x] Submitting answers to prompts
+- [x] Point system
 - [x] Player limit
-- [x] Password portected lobbies
-- [x] Search Bar for game searches
+- [x] Password protected lobbies
+- [x] Searchbar for game searches
 - [x] Game stats(e.g num of players) display
 - [x] Session Handling (Passport)
